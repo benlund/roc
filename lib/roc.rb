@@ -1,3 +1,9 @@
+require 'roc/transient'
+require 'roc/redis'
+
+
+__END__
+
 module ROC
 
   class Collection
