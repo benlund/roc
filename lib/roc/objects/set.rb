@@ -1,5 +1,5 @@
 module ROC
-  class RSortedSet
+  class Set < Base
 
   end
 end

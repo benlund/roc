@@ -1,5 +1,5 @@
 module ROC
-  class RHash
+  class List < Base
 
   end
 end

@@ -1,5 +1,5 @@
 module ROC
-  class RTime
+  class String < Base
 
   end
 end

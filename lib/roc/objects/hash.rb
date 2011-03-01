@@ -1,5 +1,5 @@
 module ROC
-  class TInteger
+  class Hash < Base
 
   end
 end

@@ -2,7 +2,6 @@ require 'roc/store/object_initializers'
 module ROC
   module Store
     class TransientStore
-      STORAGE_TYPE_PREFIX = 'T'
       include ObjectInitializers
 
       KEYSPACES = {}

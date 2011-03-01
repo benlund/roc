@@ -1,5 +1,5 @@
 module ROC
-  class TSortedSet
+  class Time < Base
 
   end
 end

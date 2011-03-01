@@ -7,39 +7,35 @@ module ROC
       end
       
       def init_string(key)
-        init(class_for('String'), key)
+        init(ROC::String, key)
       end
       
       def init_integer(key)
-        init(class_for('Integer'), key)
+        init(ROC::Integer, key)
       end
       
       def init_float(key)
-        init(class_for('Float'), key)
+        init(ROC::Float, key)
       end
       
       def init_time(key)
-        init(class_for('Time'), key)
+        init(ROC::Time, key)
       end
       
       def init_list(key)
-        init(class_for('List'), key)
+        init(ROC::List, key)
       end
       
       def init_set(key)
-        init(class_for('Set'), key)
+        init(ROC::Set, key)
       end
       
       def init_sorted_set(key)
-        init(class_for('SortedSet'), key)
+        init(ROC::SortedSet, key)
       end
       
       def init_hash(key)
-        init(class_for('Hash'), key)
-      end
-
-      def class_for(object_type)
-        ROC.const_get("#{self.class::STORAGE_TYPE_PREFIX}#{object_type}")
+        init(ROC::Hash, key)
       end
 
     end

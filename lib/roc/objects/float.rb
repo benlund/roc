@@ -1,5 +1,5 @@
 module ROC
-  class RFloat
+  class Float < Base
 
   end
 end
