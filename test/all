@@ -3,3 +3,9 @@
 $:.unshift File.join(File.dirname(__FILE__), '..', 'lib')
 
 require 'roc'
+
+tstore = ROC::Store::TransientStore.new('test')
+
+hash = tstore.init_hash('blah')
+
+puts hash.inspect

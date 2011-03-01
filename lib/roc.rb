@@ -1,3 +1,4 @@
+require 'roc/store'
 require 'roc/transient'
 require 'roc/redis'
 
