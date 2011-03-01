@@ -10,6 +10,10 @@ module ROC
         @connection = connection
       end
 
+      def inspect
+        "<#{self.class} @connection=#{self.connection.inspect}>"
+      end
+
     end
   end
 end

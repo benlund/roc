@@ -6,25 +6,6 @@ __END__
 
 module ROC
 
-  class Object
-
-    attr_reader :collection, :key
-
-    def initialize(collection, key)
-      @collection = collection
-      @key = key
-    end
-
-    def call(remote_method_name, *args)
-      self.collection.connection.send(remote_method_name, self.key, *args)
-    end
-
-    def forget
-      self.call :del
-    end
-
-  end
-
   ## make this a module for inclusion instead?
   class ScalarType < Object
 

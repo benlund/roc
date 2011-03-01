@@ -10,7 +10,19 @@ module ROC
         seed(seed_data)
       end
     end
-       
+ 
+    def seed(data)
+      if self.exists?
+        raise "#{self.key} already exists -- can't seed it"
+      else
+        self.clobber(data)
+      end
+    end
+
+    def clobber
+      raise "clobber must be overriden in subclasses"
+    end
+      
     def exists?
       self.call :exists
     end

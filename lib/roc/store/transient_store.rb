@@ -17,6 +17,10 @@ module ROC
         TransientStore::KEYSPACES[self.name]
       end
 
+      def inspect
+        "<#{self.class} @name=#{self.name.inspect}>"
+      end
+
     end
   end
 end
