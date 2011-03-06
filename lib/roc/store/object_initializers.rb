@@ -2,40 +2,40 @@ module ROC
   module Store
     module ObjectInitializers
 
-      def init(klass, key)
-        klass.new(self, key)
+      def init(klass, key, seed_data=nil)
+        klass.new(self, key, seed_data)
       end
       
-      def init_string(key)
-        init(ROC::String, key)
+      def init_string(key, seed_data=nil)
+        init(ROC::String, key, seed_data)
       end
       
-      def init_integer(key)
-        init(ROC::Integer, key)
+      def init_integer(key, seed_data=nil)
+        init(ROC::Integer, key, seed_data)
       end
       
-      def init_float(key)
-        init(ROC::Float, key)
+      def init_float(key, seed_data=nil)
+        init(ROC::Float, key, seed_data)
       end
       
-      def init_time(key)
-        init(ROC::Time, key)
+      def init_time(key, seed_data=nil)
+        init(ROC::Time, key, seed_data)
       end
       
-      def init_list(key)
-        init(ROC::List, key)
+      def init_list(key, seed_data=nil)
+        init(ROC::List, key, seed_data)
       end
       
-      def init_set(key)
-        init(ROC::Set, key)
+      def init_set(key, seed_data=nil)
+        init(ROC::Set, key, seed_data)
       end
       
-      def init_sorted_set(key)
-        init(ROC::SortedSet, key)
+      def init_sorted_set(key, seed_data=nil)
+        init(ROC::SortedSet, key, seed_data)
       end
       
-      def init_hash(key)
-        init(ROC::Hash, key)
+      def init_hash(key, seed_data=nil)
+        init(ROC::Hash, key, seed_data)
       end
 
     end

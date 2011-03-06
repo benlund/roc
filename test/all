@@ -1,11 +1,8 @@
 #!/usr/bin/env ruby
 
-$:.unshift File.join(File.dirname(__FILE__), '..', 'lib')
+ENV['ROC_STORE'] ||= 'test'
 
-require 'roc'
+require File.join('.', File.dirname(__FILE__), 'key_operations_test')
+require File.join('.', File.dirname(__FILE__), 'string_test')
 
-tstore = ROC::Store::TransientStore.new('test')
-
-hash = tstore.init_hash('blah')
-
-puts hash.inspect
+##@@ iterate

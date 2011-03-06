@@ -1,4 +1,5 @@
 require 'roc/store/object_initializers'
+
 module ROC
   module Store
     class RedisStore
@@ -8,6 +9,10 @@ module ROC
 
       def initialize(connection)
         @connection = connection
+      end
+
+      def call(method_name, *args)
+        self.connection.send method_name, *args
       end
 
       def inspect

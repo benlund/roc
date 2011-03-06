@@ -1,5 +1,8 @@
+require 'roc/types/all_types'
+
 module ROC
   class Base
+    include ROC::Types::AllTypes
 
     attr_reader :store, :key
 
@@ -19,22 +22,10 @@ module ROC
       end
     end
 
-    def clobber
+    def clobber(data)
       raise "clobber must be overriden in subclasses"
     end
-      
-    def exists?
-      self.call :exists
-    end
- 
-    def forget
-      self.call :del
-    end
-
-    def inspect
-      "<#{self.class} @store=#{self.store.inspect} @key=#{self.key.inspect}>"
-    end
-    
+     
     protected
 
     def call(remote_method_name, *args)

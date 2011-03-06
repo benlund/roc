@@ -1,38 +1,40 @@
 require 'test/unit'
-require 'rubygems'
 require 'redis'
 
-require 'lib/roc'
+$:.unshift File.join(File.dirname(__FILE__), '..', 'lib')
+require 'roc'
+
+Store = if ENV['ROC_STORE'].nil?
+          raise "no ROC_STORE given"
+        elsif ENV['ROC_STORE'] =~ /redis:/
+          raise "todo @@"
+        else
+          ROC::Store::TransientStore.new(ENV['ROC_STORE'])
+        end
 
 class ROCTest < Test::Unit::TestCase
 
-   def setup
-     @keys_used = []
-     @connection = Redis.new(:db => 13)
-     @collection = ROC::Collection.new(@connection)
-   end
+  def setup
+    @keys_used = []
+  end
+  
+  def teardown
+    @keys_used.each do |k|
+      Store.del k
+    end
+  end
+    
+  def random_key
+    k = ['ROCTest', 'random', Time.now.to_f, Kernel.rand(500000)].join(':')
+    @keys_used << k
+    k
+  end
 
-   def teardown
-     @keys_used.each do |k|
-       @connection.del k
-     end
-   end
-
-   def collection
-     @collection
-   end
-
-   def random_key
-     k = ['ROCTest', 'random', Time.now.to_f, Kernel.rand(500000)].join(':')
-     @keys_used << k
-     k
-   end
-
-   def test_connection
-     k = random_key
-     v = Kernel.rand(20000).to_s
-     @connection.set(k, v)
-     assert_equal(@connection.get(k), v)
-   end
+  def test_connection
+    k = random_key
+    v = Kernel.rand(20000).to_s
+    Store.set(k, v)
+    assert_equal(Store.get(k), v)
+  end
 
 end
