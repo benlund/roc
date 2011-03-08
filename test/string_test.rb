@@ -2,6 +2,16 @@ require File.join(File.dirname(__FILE__), 'roc_test')
 
 class StringTest < ROCTest
 
+  def test_find
+    k = random_key
+    obj = Store.find(k)
+    assert_nil obj
+
+    Store.init_string(k, 'dsdfsd')
+    obj = Store.find(k)
+    assert_equal ROC::String, obj.class
+  end
+
   def test_rw
     str = Store.init_string(random_key)
 

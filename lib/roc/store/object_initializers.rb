@@ -5,6 +5,25 @@ module ROC
       def init(klass, key, seed_data=nil)
         klass.new(self, key, seed_data)
       end
+
+      def find(key)
+        if klass = class_for_key(key)
+          init(klass, key)
+        else
+          nil
+        end
+      end
+
+      def class_for_key(key)
+        case t = self.type(key)
+        when 'string'
+          ROC::String
+        when 'none'
+          nil
+        else
+          raise "unknown type: #{t}"
+        end
+      end
       
       def init_string(key, seed_data=nil)
         init(ROC::String, key, seed_data)

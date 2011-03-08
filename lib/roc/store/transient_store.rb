@@ -37,6 +37,17 @@ module ROC
         self.mdspace.delete(key.to_s)
       end
 
+      def with_type(key, type)
+        md = self.mdspace[key.to_s]
+        if md.nil? || (md[:type] == type)
+          ret = yield
+          self.mdspace[key.to_s] ||= {:type => type}
+          ret
+        else
+          raise TypeError, "#{type} required"
+        end
+      end
+
       public
 
       def call(method_name, key, *args)
@@ -68,6 +79,10 @@ module ROC
         self.keyspace.has_key?(key.to_s)
       end
 
+      def expire(key, secs)
+        self.expireat(key, ::Time.now.to_i + secs.to_i)
+      end
+
       def expireat(key, epoch)
         if self.exists(key)
           self.mdspace[key.to_s] ||= {}
@@ -78,8 +93,12 @@ module ROC
         end
       end
 
-      def expire(key, secs)
-        self.expireat(key, ::Time.now.to_i + secs.to_i)
+      def keys
+        raise "unimeplemented"
+      end
+
+      def move(key, db)
+        raise "unimeplemented"
       end
 
       def persist(key)
@@ -89,6 +108,22 @@ module ROC
         else
           false
         end
+      end
+
+      def randomkey
+        raise "unimeplemented"
+      end
+
+      def rename(key, newkey)
+        raise "unimeplemented"
+      end
+
+      def renamenx(key, newkey)
+        raise "unimeplemented"
+      end
+
+      def sort(*args)
+        raise "unimeplemented"
       end
 
       def ttl(key)
@@ -101,22 +136,34 @@ module ROC
         val
       end
 
+      def type(key)
+        if md = self.mdspace[key.to_s]
+          md[:type]
+        else
+          'none'
+        end
+      end
+
       # Strings
 
       def get(key)
-        expunge_if_expired(key)  
-        val = self.keyspace[key.to_s]
-        if val.nil?
-          ''
-        else
-          val
+        with_type(key, 'string') do
+          expunge_if_expired(key)  
+          val = self.keyspace[key.to_s]
+          if val.nil?
+            ''
+          else
+            val
+          end
         end
       end
 
       def set(key, val)
-        expunge_if_expired(key)
-        self.keyspace[key.to_s] = val.to_s
-        true
+        with_type(key, 'string') do
+          expunge_if_expired(key)
+          self.keyspace[key.to_s] = val.to_s
+          true
+        end
       end
 
       def getset(key, val)
@@ -170,7 +217,9 @@ module ROC
 
       def append(key, val)
         if self.exists(key)
-          self.keyspace[key.to_s] << val.to_s
+          with_type(key, 'string') do
+            self.keyspace[key.to_s] << val.to_s
+          end
         else
           self.set(key, val)
         end
@@ -179,25 +228,29 @@ module ROC
 
       def getrange(key, first_index, last_index)
         if self.exists(key)
-          self.keyspace[key.to_s][first_index..last_index]
+          with_type(key, 'string') do
+            self.keyspace[key.to_s][first_index..last_index]
+          end
         else
           ''
         end
       end
 
       def setrange(key, start_index, val)
-        expunge_if_expired(key)
-        if start_index < 1
-          raise "index out of range: #{start_index}"          
+        with_type(key, 'string') do
+          expunge_if_expired(key)
+          if start_index < 1
+            raise "index out of range: #{start_index}"          
+          end
+          length = self.strlen(key)
+          padding_length = start_index - length
+          if padding_length > 0
+            self.keyspace[key.to_s][length, padding_length + val.length] = ("\u0000" * padding_length) + val
+          else
+            self.keyspace[key.to_s][start_index, val.length] = val
+          end
+          self.strlen(key)
         end
-        length = self.strlen(key)
-        padding_length = start_index - length
-        if padding_length > 0
-          self.keyspace[key.to_s][length, padding_length + val.length] = ("\u0000" * padding_length) + val
-        else
-          self.keyspace[key.to_s][start_index, val.length] = val
-        end
-        self.strlen(key)
       end
 
       def strlen(key)
