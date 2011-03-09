@@ -278,7 +278,7 @@ module ROC
       end
 
       def strlen(key)
-        self.get(key).to_s.length
+        self.get(key).to_s.bytesize
       end
 
       ## end of redis methods

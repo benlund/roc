@@ -1,3 +1,4 @@
+# encoding: UTF-8
 require File.join(File.dirname(__FILE__), 'roc_test')
 
 class StringTest < ROCTest
@@ -57,6 +58,8 @@ class StringTest < ROCTest
 
     # length
     assert_equal 12, str.length
+    str << "∂ƒ"
+    assert_equal 17, str.length
   end
 
   def test_aliases
