@@ -226,6 +226,35 @@ module ROC
         self.strlen(key)
       end
 
+      def getbit(key, index)
+        raise ArgumentError, 'setbit takes a non-negative index' unless index > 0
+
+        bitstring = self.get(key).unpack('B*')[0]
+        if index < bitstring.length
+          bitstring[index].to_i
+        else
+          0
+        end
+      end
+
+      def setbit(key, index, value)
+        raise ArgumentError, 'setbit takes a non-negative index' unless index > 0
+        raise ArgumentError, 'setbit takes a 1 or 0 for the value' unless((0 == value) || (1 == value))
+
+        bitstring = self.get(key).unpack('B*')[0]
+        current_val = 0
+        if index < bitstring.length         
+          current_val = bitstring[index].to_i
+          bitstring[index] = value.to_s
+        else
+          bitstring << ('0' * (index - bitstring.length))
+          bitstring << value
+        end
+        self.set(key, [bitstring].pack('B*'))
+        current_val
+      end
+
+
       def getrange(key, first_index, last_index)
         if self.exists(key)
           with_type(key, 'string') do

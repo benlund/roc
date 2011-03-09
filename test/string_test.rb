@@ -48,12 +48,22 @@ class StringTest < ROCTest
     str.splice(10, 'x')
     assert_equal "abupsidec\u0000x", str.value
 
-    return
+    # getbit and setbit
+    assert_equal 0, str.getbit(3)
+    assert_equal 0, str.setbit(3, 1)
+    assert_equal 1, str.getbit(3)
+    assert_equal 0, str.setbit(89, 0)
+    assert_equal "qbupsidec\u0000x\u0000", str.value
 
-    # aliases
+    # length
+    assert_equal 12, str.length
+  end
+
+  def test_aliases
+    str = Store.init_string(random_key, 'dsfdsfsd')
+
     assert_equal str.value, str.to_s
     assert_equal str.value, str.to_string
-
   end
 
   def test_setex
