@@ -15,7 +15,7 @@ module ROC
       end
 
       def class_for_key(key)
-        case t = self.type(key)
+        case t = self.call(:type, key)
         when 'string'
           ROC::String
         when 'none'

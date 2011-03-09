@@ -149,12 +149,7 @@ module ROC
       def get(key)
         with_type(key, 'string') do
           expunge_if_expired(key)  
-          val = self.keyspace[key.to_s]
-          if val.nil?
-            ''
-          else
-            val
-          end
+          self.keyspace[key.to_s]
         end
       end
 
@@ -229,7 +224,7 @@ module ROC
       def getbit(key, index)
         raise ArgumentError, 'setbit takes a non-negative index' unless index > 0
 
-        bitstring = self.get(key).unpack('B*')[0]
+        bitstring = self.get(key).to_s.unpack('B*')[0]
         if index < bitstring.length
           bitstring[index].to_i
         else
@@ -241,7 +236,7 @@ module ROC
         raise ArgumentError, 'setbit takes a non-negative index' unless index > 0
         raise ArgumentError, 'setbit takes a 1 or 0 for the value' unless((0 == value) || (1 == value))
 
-        bitstring = self.get(key).unpack('B*')[0]
+        bitstring = self.get(key).to_s.unpack('B*')[0]
         current_val = 0
         if index < bitstring.length         
           current_val = bitstring[index].to_i
@@ -283,7 +278,7 @@ module ROC
       end
 
       def strlen(key)
-        self.get(key).length
+        self.get(key).to_s.length
       end
 
       ## end of redis methods
