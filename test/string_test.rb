@@ -70,8 +70,18 @@ class StringTest < ROCTest
     str = Store.init_string(random_key)
     str.setex(1, 'blah')
     assert(str.ttl > 0)
-    sleep 2
+
+    sleep 1
+    assert_equal 'blah', str.value
+
+    sleep 1
     assert_nil str.value
+
+    str.setex(1, 'blah')
+    assert(str.ttl > 0)
+
+    str.set('blah2')
+    assert_equal -1, str.ttl
   end
 
   def test_emulation

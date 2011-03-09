@@ -26,8 +26,7 @@ module ROC
       end
 
       def expunge_if_expired(key)
-        if (md = self.mdspace[key.to_s]) && (ea = md[:expire_at]) && (ea <= ::Time.now.to_i)
-          #puts "expunging #{key}"
+        if (md = self.mdspace[key.to_s]) && (ea = md[:expire_at]) && (ea < ::Time.now.to_i)
           self.expunge(key)
         end
       end
@@ -157,6 +156,7 @@ module ROC
         with_type(key, 'string') do
           expunge_if_expired(key)
           self.keyspace[key.to_s] = val.to_s
+          self.persist(key)
           true
         end
       end
