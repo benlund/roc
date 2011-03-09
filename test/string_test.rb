@@ -106,9 +106,8 @@ class StringTest < ROCTest
   end
 
   def test_delegation
-    return
-    str = Store.init_string(random_key)
-    assert_equal 'x', (str + 'x')
+    str = Store.init_string(random_key, 'x')
+    assert_equal 'xx', (str + 'x')
     str.value = "123"
     assert_equal "321", str.reverse
     str << 'x32'

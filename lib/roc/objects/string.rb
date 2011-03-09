@@ -9,6 +9,8 @@ module ROC
     alias to_string value
     alias to_s value
 
+    delegate_methods :on => '', :to => :value
+
     nonserializing_method :append
     alias << append
 
