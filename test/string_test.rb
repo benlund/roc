@@ -87,24 +87,6 @@ class StringTest < ROCTest
     assert_equal -1, str.ttl
   end
 
-  def test_emulation
-    return
-    str = Store.init_string(random_key)
-    str.value = "something"
-    assert_equal "something"[0], str[0]
-    assert_equal "something"[1..3], str[1..3]
-    assert_equal "something"[1...5], str[1...5]
-    assert_equal "something".slice(3, 2), str.slice(3, 2)
-    assert_equal "something".slice(-1), str.slice(-1)
-    assert_equal "something".slice(4, -1), str.slice(4, -1) ## what is this supposed to do?
-    #assert_equal "something".slice(0, -1), str.slice(0, -1) ##@@ fails - fixme
-
-    # emulation -> delgaton
-    assert_equal "something"[/m|e/], str[/m|e/]
-    assert_equal "something".slice(/(me?)/, 0), str.slice(/(me?)/, 0)
-    assert_equal "something".slice(/(me?)/, 1), str.slice(/(me?)/, 1)
-  end
-
   def test_delegation
     str = Store.init_string(random_key, 'x')
     assert_equal 'xx', (str + 'x')

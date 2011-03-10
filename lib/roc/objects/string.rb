@@ -11,6 +11,8 @@ module ROC
 
     delegate_methods :on => '', :to => :value
 
+    ## redis methods ##
+
     nonserializing_method :append
     alias << append
 
