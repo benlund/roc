@@ -6,41 +6,6 @@ __END__
 
 module ROC
 
-  class Integer < ScalarType
-
-    alias :to_i :value
-    alias :to_integer :to_i
-
-    def increment(by=nil)
-      if by.nil?
-        self.call :incr
-      else
-        self.call :incrby, by
-      end
-    end
-    alias :incr :increment
-    alias :incrby :increment
-
-    def decrement(by=nil)
-      if by.nil?
-        self.call :decr
-      else
-        self.call :decrby, by
-      end
-    end
-    alias :decr :decrement
-    alias :decrby :decrement
-
-    def serialize(val)
-      val.to_s
-    end
-
-    def deserialize(val)
-      val.to_i
-    end      
-
-  end
-
   class Float < ScalarType
 
     def serialize(val)

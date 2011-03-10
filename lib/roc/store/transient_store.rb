@@ -281,6 +281,25 @@ module ROC
         self.get(key).to_s.bytesize
       end
 
+      def incr(key)
+        self.incrby(key, 1)
+      end
+
+      def incrby(key, by)
+        val = self.get(key)
+        new_val = val.to_i + by
+        self.set(key, new_val.to_s)
+        new_val
+      end
+
+      def decr(key)
+        self.incrby(key, -1)
+      end
+
+      def decrby(key, by)
+        self.incrby(key, -by)
+      end
+
       ## end of redis methods
 
       def method_missing(method_name, key, *args)

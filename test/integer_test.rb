@@ -1,10 +1,10 @@
-require 'test/roc_test'
+require File.join(File.dirname(__FILE__), 'roc_test')
 
 class IntegerTest < ROCTest
 
   def test_rw
-    int = collection.init_integer(random_key)
-    assert_equal 0, int.to_i
+    int = Store.init_integer(random_key)
+    assert_equal nil, int.to_i
     int.increment
     int.increment
     assert_equal 2, int.value
@@ -19,7 +19,7 @@ class IntegerTest < ROCTest
   end
 
   def test_delegation
-    int = collection.init_integer(random_key)
+    int = Store.init_integer(random_key, 0)
     assert_equal 3, (int + 3)
     assert_equal -3, (int - 3)
     int.increment(2)
