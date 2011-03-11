@@ -18,6 +18,7 @@ class StringTest < ROCTest
 
     # empty
     assert_nil str.value
+    assert_equal '', str.to_s
 
     # set and get
     str.value = 'a'
@@ -60,13 +61,6 @@ class StringTest < ROCTest
     assert_equal 12, str.length
     str << "∂ƒ"
     assert_equal 17, str.length
-  end
-
-  def test_aliases
-    str = Store.init_string(random_key, 'dsfdsfsd')
-
-    assert_equal str.value, str.to_s
-    assert_equal str.value, str.to_string
   end
 
   def test_setex

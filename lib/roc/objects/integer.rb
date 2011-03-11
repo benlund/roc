@@ -3,11 +3,13 @@ module ROC
   class Integer < Base
     include ROC::Types::ScalarType
 
-    alias to_integer value
-    alias to_int value
-    alias to_i value
-
     delegate_methods :on => 0, :to => :value
+
+    def to_integer
+      self.value.to_i
+    end
+    alias to_int to_integer
+    alias to_i to_integer
 
     ## implemeting redis methods ##
 

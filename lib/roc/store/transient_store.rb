@@ -286,6 +286,7 @@ module ROC
       end
 
       def incrby(key, by)
+        raise "value (#{by}) is not an integer" unless by.is_a?(::Integer)
         val = self.get(key)
         new_val = val.to_i + by
         self.set(key, new_val.to_s)

@@ -4,7 +4,8 @@ class IntegerTest < ROCTest
 
   def test_rw
     int = Store.init_integer(random_key)
-    assert_equal nil, int.to_i
+    assert_equal nil, int.value
+    assert_equal 0, int.to_i
     int.increment
     int.increment
     assert_equal 2, int.value

@@ -6,10 +6,12 @@ module ROC
     include ROC::Types::ScalarType
     extend ROC::Types::MethodGenerators
 
-    alias to_string value
-    alias to_s value
-
     delegate_methods :on => '', :to => :value
+
+    def to_string
+      self.value.to_s
+    end
+    alias to_s to_string
 
     ## redis methods ##
 
