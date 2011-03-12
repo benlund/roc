@@ -6,18 +6,6 @@ __END__
 
 module ROC
 
-  class Float < ScalarType
-
-    def serialize(val)
-      val.to_s
-    end
-
-    def deserialize(val)
-      val.to_f
-    end
-
-  end
-
   class Time < ScalarType
 
     alias :to_time :value
