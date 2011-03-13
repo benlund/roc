@@ -6,20 +6,6 @@ __END__
 
 module ROC
 
-  class Time < ScalarType
-
-    alias :to_time :value
-    
-    def serialize(val)
-      val.to_i.to_s + '.' + val.usec.to_s ##strait to_f loses precision
-    end
-
-    def deserialize(val)
-      Kernel.const_get('Time').at(val.to_f) ##@@ must be a better way
-    end
-
-  end
-
   ## make this a module for inclusion instead?
   class ArrayType < Object  
 

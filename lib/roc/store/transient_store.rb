@@ -93,11 +93,11 @@ module ROC
       end
 
       def keys
-        raise "unimeplemented"
+        raise "unimplemented"
       end
 
       def move(key, db)
-        raise "unimeplemented"
+        raise "unimplemented"
       end
 
       def persist(key)
@@ -110,19 +110,19 @@ module ROC
       end
 
       def randomkey
-        raise "unimeplemented"
+        raise "unimplemented"
       end
 
       def rename(key, newkey)
-        raise "unimeplemented"
+        raise "unimplemented"
       end
 
       def renamenx(key, newkey)
-        raise "unimeplemented"
+        raise "unimplemented"
       end
 
       def sort(*args)
-        raise "unimeplemented"
+        raise "unimplemented"
       end
 
       def ttl(key)
@@ -299,6 +299,163 @@ module ROC
 
       def decrby(key, by)
         self.incrby(key, -by)
+      end
+
+      # Lists
+
+      def lrange(key, start_index, stop_index)
+        with_type(key, 'list') do
+          expunge_if_expired(key)  
+          val = self.keyspace[key.to_s]
+          if val.nil? || (start_index >= val.size) || ( (start_index < 0) && (stop_index < start_index) )
+            []
+          else
+            val[start_index..stop_index]
+          end
+        end
+      end
+
+      def llen(key)
+        with_type(key, 'list') do
+          expunge_if_expired(key)  
+          val = self.keyspace[key.to_s]
+          if val.nil?
+            0
+          else
+            val.size
+          end
+        end
+      end
+
+      def rpush(key, val)
+        with_type(key, 'list') do
+          if !self.exists(key)
+            self.keyspace[key.to_s] = []
+          end
+          self.keyspace[key.to_s] << val
+          self.keyspace[key.to_s].size
+        end
+      end
+
+      def lpush(key, val)
+        with_type(key, 'list') do
+          if !self.exists(key)
+            self.keyspace[key.to_s] = []
+          end
+          self.keyspace[key.to_s].unshift( val )
+          self.keyspace[key.to_s].size
+        end
+      end
+
+      def rpop(key)
+        with_type(key, 'list') do          
+          if !self.exists(key)
+            nil
+          else
+            val = self.keyspace[key.to_s].pop  
+            if 0 == self.llen(key)
+              self.del(key)
+            end
+            val
+          end
+        end
+      end
+
+      def lpop(key)
+        with_type(key, 'list') do          
+          if !self.exists(key)
+            nil
+          else
+            val = self.keyspace[key.to_s].shift
+            if 0 == self.llen(key)
+              self.del(key)
+            end
+            val
+          end
+        end
+      end
+
+      def lindex(key, ind)
+        with_type(key, 'list') do          
+          if !self.exists(key)
+            nil
+          else
+            self.keyspace[key.to_s][ind]
+          end
+        end
+      end
+
+      def lset(key, ind, val)
+        with_type(key, 'list') do
+          expunge_if_expired(key)  
+          arr = self.keyspace[key.to_s]
+          if arr.nil?
+            raise ArgumentError, "No such key: #{key}"
+          elsif ((ind < 0) && (ind < -arr.size)) || (ind >= arr.size)
+            raise ArgumentError, "index out of range: #{ind}"
+          else
+            self.keyspace[key.to_s][ind] = val
+          end
+        end
+      end
+
+      def lrem(key, count, val)
+        with_type(key, 'list') do
+          if self.exists(key)
+            iterator = self.keyspace[key.to_s]
+            limit = iterator.size
+            reverse = false
+            if count > 0
+              limit = count
+            elsif count < 0
+              limit = count.abs
+              iterator = iterator.reverse
+              reverse = true
+            end
+            indexes_to_del = []
+            iterator.each_with_index do |test, i|
+              if test == val
+                if reverse
+                  indexes_to_del.unshift iterator.size - (i + 1)
+                else
+                  indexes_to_del << i
+                end
+              end
+              if indexes_to_del.size == limit
+                break
+              end
+            end
+            correction = 0
+            indexes_to_del.each do |i| 
+              self.keyspace[key.to_s].delete_at(i - correction)
+              correction += 1
+            end
+            indexes_to_del.size
+          else
+            0
+          end
+        end          
+      end
+
+      def ltrim(key, start_index, stop_index)
+        arr = self.lrange(key, start_index, stop_index)
+        if 0 == arr.size
+          self.del(key)
+        else
+          self.keyspace[key.to_s] = arr
+        end
+        true
+      end
+
+      def rpoplpush(source_key, dest_key)
+        if self.exists(source_key)
+          val = self.rpop(source_key)
+          self.lpush(dest_key, val)
+          val
+        else
+          nil
+        end
+          
       end
 
       ## end of redis methods
