@@ -337,6 +337,14 @@ module ROC
         end
       end
 
+      def rpushx(key, val)
+        if self.exists(key)
+          self.rpush(key, val)
+        else
+          0
+        end
+      end
+
       def lpush(key, val)
         with_type(key, 'list') do
           if !self.exists(key)
@@ -344,6 +352,14 @@ module ROC
           end
           self.keyspace[key.to_s].unshift( val )
           self.keyspace[key.to_s].size
+        end
+      end
+
+      def lpushx(key, val)
+        if self.exists(key)
+          self.lpush(key, val)
+        else
+          0
         end
       end
 
@@ -457,6 +473,40 @@ module ROC
         end
           
       end
+
+      def linsert(key, where, pivot, val)
+        if !['before', 'after'].include?(where.downcase)
+          raise ArgumentError "BEFORE or AFTER please"
+        else
+          if self.exists(key)
+            ind = self.keyspace[key.to_s].index(pivot)
+            if ind
+              if 'after' == where
+                ind +=1
+              end
+              self.keyspace[key.to_s].insert(ind, val)
+              self.keyspace[key.to_s].size
+            else
+              -1
+            end
+          else
+            0
+          end
+        end
+      end
+
+      def blpop
+        raise "blocking methods not implemented"
+      end
+
+      def brpop
+        raise "blocking methods not implemented"
+      end
+
+      def brpoplpush
+        raise "blocking methods not implemented"
+      end
+
 
       ## end of redis methods
 

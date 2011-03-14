@@ -26,7 +26,7 @@ class ListTest < ROCTest
     assert_equal 'z', l.shift
     assert_equal ['a'], l.values
 
-    assert_raises ArgumentError do 
+    assert_raises ArgumentError, RuntimeError do 
       l.set(1, '2')
     end
 
@@ -65,9 +65,24 @@ class ListTest < ROCTest
     assert_equal ['b'], l.values
     assert_equal ['a'], ol.values
 
-    return 
+    assert_equal 2, l.lpushx('a')
+    assert_equal ['a', 'b'], l.values
+    assert_equal 2, ol.rpushx('b')
+    assert_equal ['a', 'b'], ol.values
 
-    ## @@
+    new_l = Store.init_list(random_key)
+    assert_equal 0, new_l.lpushx('a')
+    assert !new_l.exists
+    assert_equal 0, new_l.rpushx('a')
+    assert !new_l.exists
+
+    assert_equal 3, l.insert_after('b', 'c')
+    assert_equal ['a', 'b', 'c'], l.values
+    assert_equal 4, l.insert_before('c', 'x')
+    assert_equal ['a', 'b', 'x', 'c'], l.values
+    assert_equal -1, l.insert_before('y', 'z')
+    assert_equal ['a', 'b', 'x', 'c'], l.values
+    assert_equal 0, new_l.insert_before(1, 1)
 
   end
 

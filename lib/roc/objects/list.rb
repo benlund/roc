@@ -17,8 +17,12 @@ module ROC
     alias << rpush
     alias push rpush
 
+    nonserializing_method :rpushx
+
     nonserializing_method :lpush
     alias unshift lpush
+
+    nonserializing_method :lpushx
 
     zero_arg_method :rpop
     alias pop rpop
@@ -46,6 +50,19 @@ module ROC
 
     def rpoplpush(other_list=self)
       self.call :rpoplpush, other_list.key
+    end
+
+    def linsert(where, pivot, value)
+      self.call :linsert, where, pivot, value
+    end
+    alias insert linsert
+
+    def insert_before(pivot, value)
+      self.insert('before', pivot, value)
+    end
+
+    def insert_after(pivot, value)
+      self.insert('after', pivot, value)
     end
 
     ## implementing ArrayType ##
