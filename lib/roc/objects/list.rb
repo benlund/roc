@@ -113,7 +113,7 @@ module ROC
       end
     end
 
-    ## implement (if posible) destructive methods that would otherwise be raise
+    ## implement (if posible) destructive methods that would otherwise raise
 
     def delete(val)
       count = self.lrem(0, val)

@@ -31,10 +31,6 @@ module ROC
     nonserializing_method :srem
     alias rem srem
 
-    #def delete(val)
-      ##@@
-    #end
-
     def smove(other_set, val)
       self.call :smove, other_set.key, val
     end
@@ -81,6 +77,15 @@ module ROC
     alias diff_store sdiffstore
     alias set_as_diff_of sdiffstore
 
+    ## implement (if posible) destructive methods that would otherwise raise
+
+    def delete(val)
+      if self.srem(val)
+        val
+      else
+        nil
+      end
+    end
 
     ## implementing ArrayType ##
 

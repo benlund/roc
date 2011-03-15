@@ -25,7 +25,7 @@ class SetTest < ROCTest
     assert_equal 3, s.size
 
     assert s.rem('z')
-    assert_equal ['w','y'], s.values
+    assert_equal ['w','y'], s.values.sort
 
     os = Store.init_set(random_key)
     assert s.move_into(os, 'y')
@@ -59,8 +59,27 @@ class SetTest < ROCTest
     assert_equal ['z'], d2_set.values.sort
   end
 
+  def test_mask
+
+    s = Store.init_set(random_key, ['1','2'])
+    assert_equal '1', s.delete('1')
+    assert_equal ['2'], s.values
+
+    assert_raises NotImplementedError do
+      s.delete_at(0)
+    end
+
+    assert_raises NotImplementedError do
+      s.delete_if{true}
+    end
+
+  end
+
   def test_delegation
-    # @@
+    l = Store.init_list(random_key, ['a', 'b', 'c', 'd', 'e', 'f'])
+
+    assert_equal ['a', 'b', 'c', 'd', 'e', 'f'], l.sort
+
   end
 
 end
