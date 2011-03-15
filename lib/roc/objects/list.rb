@@ -113,7 +113,7 @@ module ROC
       end
     end
 
-    ## mask  destructive methods that would otherwise be delegated
+    ## implement (if posible) destructive methods that would otherwise be raise
 
     def delete(val)
       count = self.lrem(0, val)
@@ -122,14 +122,6 @@ module ROC
       else
         nil
       end
-    end
-
-    def delete_at(ind)
-      raise NotImplementedError
-    end
-
-    def delete_if
-      raise NotImplementedError
     end
 
     ## implementing ArrayType ##

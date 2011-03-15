@@ -470,8 +470,7 @@ module ROC
           val
         else
           nil
-        end
-          
+        end          
       end
 
       def linsert(key, where, pivot, val)
@@ -507,6 +506,156 @@ module ROC
         raise "blocking methods not implemented"
       end
 
+      # Set
+
+      def sadd(key, val)
+        with_type(key, 'set') do
+          if !self.exists(key)
+            self.keyspace[key.to_s] = {}
+          end
+          if self.keyspace[key.to_s].has_key?(val)
+            false
+          else
+            self.keyspace[key.to_s][val] = val
+            true
+          end
+        end
+      end
+
+      def scard(key)
+        with_type(key, 'set') do
+          expunge_if_expired(key)  
+          val = self.keyspace[key.to_s]
+          if val.nil?
+            0
+          else
+            val.size
+          end
+        end
+      end
+
+      def smembers(key)
+        with_type(key, 'set') do
+          expunge_if_expired(key)  
+          val = self.keyspace[key.to_s]
+          if val.nil?
+           []
+          else
+            val.keys
+          end
+        end
+      end
+
+      def spop(key)
+        with_type(key, 'set') do
+          expunge_if_expired(key)  
+          hsh = self.keyspace[key.to_s]
+          if hsh.nil?
+           nil
+          else
+            val = hsh.keys.sort{Kernel.rand}[0]
+            self.keyspace[key.to_s].delete(val)
+            if 0 == self.keyspace[key.to_s].size
+              self.del(key)              
+            end
+            val
+          end
+        end
+      end
+
+      def sismember(key, val)
+        with_type(key, 'set') do
+          expunge_if_expired(key)  
+          hsh = self.keyspace[key.to_s]
+          if hsh.nil?
+           false
+          else
+            hsh.has_key?(val)
+          end
+        end
+      end
+
+      def srem(key, val)
+        with_type(key, 'set') do
+          expunge_if_expired(key)  
+          hsh = self.keyspace[key.to_s]
+          if hsh.nil?
+           false
+          else
+            !!hsh.delete(val)
+          end
+        end
+      end
+
+      def srandmember(key)
+        with_type(key, 'set') do
+          expunge_if_expired(key)  
+          hsh = self.keyspace[key.to_s]
+          if hsh.nil?
+           nil
+          else
+            hsh.keys.sort{Kernel.rand}[0]
+          end
+        end
+      end
+
+      def smove(source_key, dest_key, val)
+        if self.exists(source_key)
+          if self.srem(source_key, val)
+            self.sadd(dest_key, val)
+            true
+          else
+            false
+          end
+        else
+          false
+        end
+      end
+
+      def sunion(*keys)
+        raise ArgumentError, 'sunion needs at least one key' unless keys.size > 0
+        union = self.smembers(keys.shift)
+        while k = keys.shift
+          union = union | self.smembers(k)
+        end
+        union
+      end
+
+      def sinter(*keys)
+        raise ArgumentError, 'sinter needs at least one key' unless keys.size > 0
+        inter = self.smembers(keys.shift)
+        while k = keys.shift
+          inter = inter & self.smembers(k)
+        end
+        inter
+      end
+
+      def sdiff(*keys)
+        raise ArgumentError, 'sinter needs at least one key' unless keys.size > 0
+        diff = self.smembers(keys.shift)
+        while k = keys.shift
+          diff = diff - self.smembers(k)
+        end
+        diff
+      end
+
+      def sunionstore(key, *other_keys)
+        vals = self.sunion(*other_keys)
+        vals.each{|v| self.sadd(key, v)}
+        vals.size
+      end
+
+      def sinterstore(key, *other_keys)
+        vals = self.sinter(*other_keys)
+        vals.each{|v| self.sadd(key, v)}
+        vals.size
+      end
+
+      def sdiffstore(key, *other_keys)
+        vals = self.sdiff(*other_keys)
+        vals.each{|v| self.sadd(key, v)}
+        vals.size
+      end
 
       ## end of redis methods
 
