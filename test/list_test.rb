@@ -33,7 +33,7 @@ class ListTest < ROCTest
     l << '2'
     assert_equal ['a', '2'], l.values
 
-    l.set(1, 'b')
+    assert l.set(1, 'b')
     assert_equal 'b', l.index(1)
     assert_equal 2, l.size
     assert_equal ['a', 'b'], l.values
@@ -87,15 +87,51 @@ class ListTest < ROCTest
   end
 
   def test_shortcuts
-    #    assert_equal ['a', '1'], l[1..2]
-    # assert_equal ['a'], l[1...2]
+
+    l = Store.init_list(random_key, ['a', 'b', 'c', 'd', 'e', 'f'])
+
+    assert_equal 'a', l.first
+    assert_equal 'f', l.last
+
+    assert_equal 'b', l[1]
+    assert_equal ['c', 'd', 'e'], l[2..4]
+    assert_equal ['c', 'd'], l[2...4]
+
+    assert( l[1] = 'x' )
+    assert_equal ['a', 'x', 'c', 'd', 'e', 'f'], l.values
+
+    assert_raises ArgumentError do
+      l[1..2] = 'x'
+    end
+
+    assert_raises ArgumentError do
+      l[1,2] = 'x'
+    end
+
+  end
+
+  def test_mask
+
+    l = Store.init_list(random_key, ['1','2','1','2','1'])
+    assert_equal '1', l.delete('1')
+    assert_equal ['2','2'], l.values
+
+    assert_raises NotImplementedError do
+      l.delete_at(0)
+    end
+
+    assert_raises NotImplementedError do
+      l.delete_if{true}
+    end
 
   end
 
   def test_delegation
-    l = Store.init_list(random_key)
+    l = Store.init_list(random_key, ['a', 'b', 'c', 'd', 'e', 'f'])
 
-    ##@@ test .last
+    assert_equal ['ax', 'bx', 'cx', 'dx', 'ex', 'fx'], l.map{|x| x + 'x'}
+    assert_equal ['f', 'e', 'd', 'c', 'b', 'a'], l.reverse
+
   end
 
 end

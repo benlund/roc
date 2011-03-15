@@ -65,7 +65,78 @@ module ROC
       self.insert('after', pivot, value)
     end
 
+    ## shortcut methods
+
+    def [](range_or_num, num=nil)
+      if range_or_num.is_a?(::Integer)
+        if num.nil?
+          self.lindex(range_or_num)
+        elsif num >= 0
+          self.lrange(range_or_num, range_or_num + num - 1)
+        else
+          raise ArgumentError, 'second arg to [] must be a non-neg integer'
+        end
+      elsif range_or_num.is_a?(Range)
+        self.lrange(range_or_num.first, (range_or_num.exclude_end? ? range_or_num.last - 1 : range_or_num.last))
+      else
+        if num.nil?
+          self.values.slice(range_or_num)
+        else
+          self.values.slice(range_or_num, num)
+        end
+      end
+    end
+    alias slice []
+
+    def first
+      self.lindex(0)
+    end
+
+    def last
+      self.lindex(-1)
+    end
+
+    def []=(*args)
+      case args.size
+      when 1
+        raise ArgumentError, 'index required'
+      when 2
+        if args[0].is_a?(::Integer)
+          self.lset(*args)
+        else
+          raise ArgumentError, 'range assignment not supported in []='
+        end
+      when 3
+        raise ArgumentError, 'multiple index assignment not supported in []='
+      else
+        raise ArgumentError, 'wrong number of args'
+      end
+    end
+
+    ## mask  destructive methods that would otherwise be delegated
+
+    def delete(val)
+      count = self.lrem(0, val)
+      if count > 0
+        val
+      else
+        nil
+      end
+    end
+
+    def delete_at(ind)
+      raise NotImplementedError
+    end
+
+    def delete_if
+      raise NotImplementedError
+    end
+
     ## implementing ArrayType ##
+
+    def clobber(vals)
+      vals.each{|v| self << v}
+    end
 
     def values
       self.lrange(0, -1)
