@@ -516,7 +516,7 @@ module ROC
           if self.keyspace[key.to_s].has_key?(val)
             false
           else
-            self.keyspace[key.to_s][val] = val
+            self.keyspace[key.to_s][val] = true
             true
           end
         end
@@ -657,10 +657,172 @@ module ROC
         vals.size
       end
 
+      # Sorted Sets
+
+      def zadd(key, score, val)
+        with_type(key, 'sorted_set') do
+          if !self.exists(key)
+            self.keyspace[key.to_s] = {:map => {}, :list => []}
+          end
+          ret = true
+          if self.keyspace[key.to_s][:map].has_key?(val)
+            ret = false
+          end
+          self.keyspace[key.to_s][:map][val] = score
+          self.resort(key)
+          ret
+        end
+      end
+
+      def zcard(key)
+        with_type(key, 'sorted_set') do
+          expunge_if_expired(key)  
+          val = self.keyspace[key.to_s]
+          if val.nil?
+            0
+          else
+            val[:list].size
+          end
+        end
+      end
+
+      def zrange(key, start_index, stop_index, opts={})
+        with_type(key, 'sorted_set') do
+          expunge_if_expired(key)  
+          val = self.keyspace[key.to_s]
+          if val.nil? || (start_index >= val[:list].size) || ( (start_index < 0) && (stop_index < start_index) )
+            []
+          else
+            if opts[:with_scores] || opts[:withscores]
+              ret = []
+              val[:list][start_index..stop_index].each do |v|
+                ret << v
+                ret << val[:map][v].to_s
+              end
+              ret
+            else
+              val[:list][start_index..stop_index]
+            end
+          end
+        end
+      end
+
+      def zrem(key, val)
+        with_type(key, 'sorted_set') do
+          expunge_if_expired(key)  
+          hsh = self.keyspace[key.to_s]
+          if hsh.nil?
+           false
+          else
+            if hsh[:map].delete(val)
+              self.resort(key)
+              true
+            else
+              false
+            end
+          end
+        end
+      end
+
+      def zunionstore(key, other_keys, opts)
+        raise ArgumentError, 'zunionstore needs at least one key' unless other_keys.size > 0
+        raise ArgumentError, 'mismatch weights count' unless (!opts.has_key?(:weights) || (opts[:weights].size == other_keys.size))
+        with_type(key, 'sorted_set') do
+          sorted_sets = other_keys.map{|k| self.keyspace[k.to_s]}.compact
+          u = sorted_sets.pop
+          if u
+            weight_a = (opts.has_key?(:weights) ? opts[:weights].pop : 1)
+            while ss = sorted_sets.pop
+              weight_b = (opts.has_key?(:weights) ? opts[:weights].pop : 1)
+              u = self.ss_union(u, ss, weight_a, weight_b, (opts.has_key?(:aggregate) ? opts[:aggregate] : 'sum')) ##@@ weights and agg
+              weight_a = 1
+            end
+          else
+            u = {:map => {}, :list => []}
+          end
+            self.keyspace[key.to_s] = u
+          u[:list].size
+        end
+      end
+
+      def zinterstore(key, other_keys, opts)
+        raise ArgumentError, 'zinterstore needs at least one key' unless other_keys.size > 0
+        with_type(key, 'sorted_set') do
+          sorted_sets = other_keys.map{|k| self.keyspace[k.to_s]}.compact
+          i = sorted_sets.pop
+          if i
+            weight_a = (opts.has_key?(:weights) ? opts[:weights].pop : 1)
+            while ss = sorted_sets.pop
+              weight_b = (opts.has_key?(:weights) ? opts[:weights].pop : 1)
+              i = self.ss_intersect(i, ss, weight_a, weight_b, (opts.has_key?(:aggregate) ? opts[:aggregate] : 'sum')) ##@@ weights and agg
+              weight_a = 1
+            end
+          else
+            i = {:map => {}, :list => []}
+          end
+          self.keyspace[key.to_s] = i
+          i[:list].size
+        end
+      end
+
+      
+      # non-public helpers for redis methods
+      protected
+
+      def resort(key)
+        self.keyspace[key.to_s][:list] = do_sort(self.keyspace[key.to_s][:map])
+      end
+      
+      def do_sort(map)
+        map.keys.sort do |a, b| 
+          score = (map[a] <=> map[b])
+          if 0 == score
+            a <=> b
+          else
+            score
+          end
+        end
+      end
+
+      def ss_union(a, b, weight_a, weight_b, aggregate)
+        self.do_ss_calc( (a[:list] | b[:list] ), a, b, weight_a, weight_b, aggregate )
+      end
+
+      def ss_intersect(a, b, weight_a, weight_b, aggregate)
+        self.do_ss_calc( (a[:list] & b[:list] ), a, b, weight_a, weight_b, aggregate )
+      end
+
+      def do_ss_calc(set, a, b, weight_a, weight_b, aggregate)
+        r = {:map => {}, :list => []}
+        set.each do |k|
+          a_score = a[:map].has_key?(k) && (a[:map][k] * weight_a)
+          b_score = b[:map].has_key?(k) && (b[:map][k] * weight_b)
+          r[:map][k] = if a_score && b_score
+                         case aggregate.downcase
+                         when 'sum'
+                           a_score + b_score
+                         when 'min'
+                           [a_score, b_score].min
+                         when 'max'
+                           [a_score, b_score].max
+                         else
+                           raise ArgumentError, "Invalid aggregate: #{aggregate}"
+                         end
+                       elsif a_score
+                         a_score
+                       else
+                         b_score
+                       end
+        end
+        r[:list] = do_sort(r[:map])
+        r
+      end
+
+      public
       ## end of redis methods
 
-      def method_missing(method_name, key, *args)
-        puts "unimplmented: #{method_name}, #{key}, #{args}"
+      def method_missing(*args)
+        puts "unimplemented: #{args}"
       end
 
       def inspect

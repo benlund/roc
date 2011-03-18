@@ -14,7 +14,6 @@ module ROC
     zero_arg_method :llen
 
     nonserializing_method :rpush
-    alias << rpush
     alias push rpush
 
     nonserializing_method :rpushx
@@ -123,6 +122,8 @@ module ROC
         nil
       end
     end
+
+    alias << rpush
 
     ## implementing ArrayType ##
 

@@ -8,7 +8,6 @@ module ROC
 
     nonserializing_method :sadd
     alias add sadd
-    alias << sadd
 
     zero_arg_method :scard
 
@@ -86,6 +85,8 @@ module ROC
         nil
       end
     end
+
+    alias << sadd
 
     ## implementing ArrayType ##
 

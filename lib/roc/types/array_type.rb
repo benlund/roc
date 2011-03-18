@@ -55,6 +55,10 @@ module ROC
         raise NotImplementedError
       end
 
+      def <<(val)
+        raise NotImplementedError
+      end
+
     end
   end
 end
