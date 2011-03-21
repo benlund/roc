@@ -1,3 +1,5 @@
+require 'redis'
+require 'roc/ext/redis_ext'
 require 'roc/store/object_initializers'
 
 module ROC

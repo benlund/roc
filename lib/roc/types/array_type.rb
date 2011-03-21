@@ -59,6 +59,10 @@ module ROC
         raise NotImplementedError
       end
 
+      def []=(ind, val)
+        raise NotImplementedError
+      end
+
     end
   end
 end

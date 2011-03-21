@@ -14,9 +14,49 @@ module ROC
     def zrange(start_index, stop_index, opts={})
       self.call :zrange, start_index, stop_index, opts
     end
+    alias range zrange
+
+    def zrevrange(start_index, stop_index, opts={})
+      self.call :zrevrange, start_index, stop_index, opts
+    end
+    alias revrange zrevrange
+
+    def zrangebyscore(min, max, opts={})
+      self.call :zrangebyscore, min, max, opts
+    end
+    alias rangebyscore zrangebyscore
+
+    def zrevrangebyscore(max, min, opts={})
+      self.call :zrevrangebyscore, max, min, opts
+    end
+    alias revrangebyscore zrevrangebyscore
+
+    def zcount (min, max)
+      self.call :zcount, min, max
+    end
+    alias count zcount
+
+    nonserializing_method :zrank
+    alias rank zrank
+
+    nonserializing_method :zrevrank
+    alias revrank zrevrank
+
+    nonserializing_method :zscore
+    alias score zscore
 
     nonserializing_method :zrem
     alias rem zrem
+
+    def zremrangebyscore(min, max)
+      self.call :zremrangebyscore, min, max
+    end
+    alias remrangebyscore zremrangebyscore
+
+    def zremrangebyrank(start, stop)
+      self.call :zremrangebyrank, start, stop
+    end
+    alias remrangebyrank zremrangebyrank
 
     def zinterstore(*other_sorted_sets)
       opts = if other_sorted_sets.last.is_a?(::Hash)
@@ -43,7 +83,49 @@ module ROC
     alias union_store zunionstore
     alias set_as_union_of zunionstore
 
-    ## include?
+    ## shortcut methods
+
+    def [](range_or_num, num=nil)
+      if range_or_num.is_a?(::Integer)
+        if num.nil?
+          self.zrange(range_or_num, range_or_num)[0]
+        elsif num >= 0
+          self.zrange(range_or_num, range_or_num + num - 1)
+        else
+          raise ArgumentError, 'second arg to [] must be a non-neg integer'
+        end
+      elsif range_or_num.is_a?(Range)
+        self.zrange(range_or_num.first, (range_or_num.exclude_end? ? range_or_num.last - 1 : range_or_num.last))
+      else
+        if num.nil?
+          self.values.slice(range_or_num)
+        else
+          self.values.slice(range_or_num, num)
+        end
+      end
+    end
+    alias slice []
+
+    def first
+      self.zrange(0, 0)[0]
+    end
+
+    def last
+      self.zrange(-1, -1)[0]
+    end
+
+    def include?(val)
+      !self.zrank(val).nil?
+    end
+    
+    def index(val)
+      self.zrank(val)
+    end
+
+    def reverse
+      self.zrevrange(0, -1)
+    end
+
 
     ## implement (if posible) destructive methods that would otherwise raise
 

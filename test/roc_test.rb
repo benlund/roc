@@ -1,5 +1,4 @@
 require 'test/unit'
-require 'redis'
 
 $:.unshift File.join(File.dirname(__FILE__), '..', 'lib')
 require 'roc'

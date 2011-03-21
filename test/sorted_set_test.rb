@@ -24,9 +24,70 @@ class SortedSetTest < ROCTest
     s << {:value => 'w', :score => 6}
     assert_equal ['z', 'a', 'w', 'y'], s.values
 
+    #range and revrange
+    assert_equal ['a', 'w'], s.range(1, 2)
+    assert_equal ['z', 'a', 'w'], s.range(0, -2)
+    assert_equal ['w', 'a'], s.revrange(1, 2)
+    assert_equal ['y', 'w', 'a', 'z'], s.revrange(0, -1)
+
+    #z(rev)rangebyscore, zcount
+
+    assert_equal [], s.rangebyscore(100, 200)
+    assert_equal 0, s.count(100, 200)
+
+    assert_equal ['w', 'y'], s.rangebyscore(6, 7)
+    assert_equal ['y', 'w'], s.revrangebyscore(7, 6)
+    assert_equal 2, s.count(6, 7)
+
+    assert_equal ['z', 'a', 'w', 'y'], s.rangebyscore('-inf','+inf')
+    assert_equal ['y', 'w', 'a', 'z'], s.revrangebyscore('+inf','-inf')
+    assert_equal 4, s.count('-inf','+inf')
+
+    assert_equal ['a', 'w', 'y'], s.rangebyscore('(1', '6')
+    assert_equal 3, s.count('(1', '6')
+
+    assert_equal ['a'], s.rangebyscore('(1', '(6')
+    assert_equal 1, s.count('(1', '(6')
+
+    assert_equal ['a', 'w'], s.rangebyscore('(1', '6', :limit => [0, 2])
+    assert_equal ['y', 'w'], s.revrangebyscore('+inf','-inf', :limit => [0, 2])
+    assert_equal ['z', '1', 'a', '2', 'w', '6', 'y', '6'], s.rangebyscore('-inf','+inf', :with_scores => true)
+    assert_equal ['a', '2', 'w', '6'], s.rangebyscore('-inf','+inf', :with_scores => true, :limit => [1, 2])
+
+    #zrem
+
     assert s.rem('z')
     assert !s.rem('z')
     assert_equal 3, s.size
+
+    #zrank, zrevrank
+
+    assert_nil s.rank('z')
+    assert_nil s.revrank('z')
+    assert_equal 1, s.rank('w')
+    assert_equal 1, s.revrank('w')
+    assert_nil Store.init_sorted_set(random_key).rank('x')
+
+    #zscore
+    assert_nil s.score('z')
+    assert_equal '6', s.score('w')
+    assert_nil Store.init_sorted_set(random_key).score('x')
+
+    #zremrangeby*
+    s << [-1, 'x']
+    s << [10, 'xx']
+    s << [11, 'xxx']
+
+    assert_equal 1, s.remrangebyscore('-inf', -1)
+    assert_equal 0, s.remrangebyscore('(11', '+inf')
+    assert_equal 2, s.remrangebyscore('10', '+inf')
+
+    s << [3, 'b']
+    s << [4, 'c']
+
+    assert_equal 2, s.remrangebyrank(1, 2)
+    
+    #set ops
 
     os = Store.init_sorted_set(random_key)
     us = Store.init_sorted_set(random_key)
@@ -72,14 +133,45 @@ class SortedSetTest < ROCTest
     assert_equal ['w', 'y'], is.values
     assert_equal ['w', '6', 'y', '6'], is.values(:with_scores => true)    
 
-    return
+  end
 
+  def test_shortcuts
 
-    ##@@
+    s = Store.init_sorted_set(random_key)
+    s << [-2, 'a']
+    s << [0, 'b']
+    s << [200, 'c']
+    s << [200, 'd']
+    s << [201, 'e']
+    s << [3000, 'f']
+
+    assert_equal 'a', s.first
+    assert_equal 'f', s.last
+
+    assert_equal 'b', s[1]
+    assert_equal ['c', 'd', 'e'], s[2..4]
+    assert_equal ['c', 'd'], s[2...4]
+
+    assert s.include?('c')
+    assert !s.include?('x')
+
+    assert_equal 3, s.index('d')
+    assert_nil s.index('x')
+
+    assert_equal ['f', 'e', 'd', 'c', 'b', 'a'], s.reverse
 
   end
 
   def test_delegation
+    s = Store.init_sorted_set(random_key)
+    s << [-2, 'a']
+    s << [0, 'b']
+    s << [200, 'c']
+    s << [200, 'd']
+    s << [201, 'e']
+    s << [3000, 'f']
+
+    assert_equal ['ax', 'bx', 'cx', 'dx', 'ex', 'fx'], s.map{|x| x + 'x'}
   end
 
 end

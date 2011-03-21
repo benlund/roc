@@ -707,6 +707,133 @@ module ROC
         end
       end
 
+      def zrevrange(key, start_index, stop_index, opts={})
+        with_type(key, 'sorted_set') do
+          expunge_if_expired(key)  
+          val = self.keyspace[key.to_s]
+          if val.nil? || (start_index >= val[:list].size) || ( (start_index < 0) && (stop_index < start_index) )
+            []
+          else
+            list = val[:list].reverse
+            if opts[:with_scores] || opts[:withscores]
+              ret = []
+              list[start_index..stop_index].each do |v|
+                ret << v
+                ret << val[:map][v].to_s
+              end
+              ret
+            else
+              list[start_index..stop_index]
+            end
+          end
+        end
+      end
+
+      def zrangebyscore(key, min, max, opts={})
+        with_type(key, 'sorted_set') do
+          expunge_if_expired(key)  
+          val = self.keyspace[key.to_s]
+          if val.nil?
+            []
+          else
+            parse = lambda {|v|
+              if v.is_a?(::String)
+                if v[0] == '('[0]                  
+                  [v[1..v.length-1].to_i, false]
+                elsif '+inf' == v
+                  [1.0/0, true]
+                elsif '-inf' == v
+                  [-1.0/0, true]
+                else
+                  [v.to_i, true]
+                end
+              else
+                [v.to_i, true]
+              end
+              }
+            min_int, min_incl = *parse.call(min)
+            max_int, max_incl = *parse.call(max)
+
+            ret = []
+
+            pass = lambda { |val, op, incl, test|
+              val.send( op + (incl ? '=' : ''), test)
+            }
+
+            val[:list].each do |v|
+              if pass.call(val[:map][v], '>', min_incl, min_int) && pass.call(val[:map][v], '<', max_incl, max_int)
+                ret << v
+                if opts[:with_scores] || opts[:withscores]
+                  ret << val[:map][v].to_s
+                end
+              end
+            end
+            if opts.has_key?(:limit)
+              limit = if opts[:with_scores] || opts[:withscores]
+                        opts[:limit].map{|x| x * 2}
+                      else
+                        opts[:limit]
+                      end
+              ret[limit[0], limit[1]]
+            else
+              ret
+            end
+          end
+        end
+      end
+
+      def zrevrangebyscore(key, max, min, opts={})
+        limit = opts.delete(:limit)
+        ret = self.zrangebyscore(key, min, max, opts).reverse
+        if limit
+          ret[limit[0], limit[1]]
+        else
+          ret
+        end
+      end
+
+      def zcount(key, min, max)
+        self.zrangebyscore(key, min, max).size
+      end
+
+      def zrank(key, val)
+        with_type(key, 'sorted_set') do
+          expunge_if_expired(key)  
+          hsh = self.keyspace[key.to_s]
+          if hsh.nil?
+           nil
+          else
+            hsh[:list].index(val)
+          end
+        end
+      end
+
+      def zrevrank(key, val)
+        r = self.zrank(key, val)
+        if r
+          self.keyspace[key.to_s][:list].size - (r + 1)
+        else
+          nil
+        end
+      end
+
+      def zscore(key, val)
+        with_type(key, 'sorted_set') do
+          expunge_if_expired(key)  
+          hsh = self.keyspace[key.to_s]
+          if hsh.nil?
+           nil
+          else
+            v = hsh[:map][val]
+            if v
+              v.to_s
+            else
+              nil
+            end
+          end
+        end
+      end
+
       def zrem(key, val)
         with_type(key, 'sorted_set') do
           expunge_if_expired(key)  
@@ -722,6 +849,32 @@ module ROC
             end
           end
         end
+      end
+
+      def zremrangebyscore(key, min, max)
+        vals = self.zrangebyscore(key, min, max)
+        if vals.size > 0
+          vals.each do |val|
+            self.keyspace[key.to_s][:map].delete(val)
+          end
+          self.resort(key)
+          vals.size
+        else
+          0
+        end
+      end
+
+      def zremrangebyrank(key, start, stop)
+        vals = self.zrange(key, start, stop)
+        if vals.size > 0
+          vals.each do |val|
+            self.keyspace[key.to_s][:map].delete(val)
+          end
+          self.resort(key)
+          vals.size
+        else
+          0
+        end        
       end
 
       def zunionstore(key, other_keys, opts)
