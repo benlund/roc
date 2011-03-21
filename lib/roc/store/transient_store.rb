@@ -834,6 +834,13 @@ module ROC
         end
       end
 
+      def zincrby(key, by, val)
+        score = self.zscore(key, val) || '0'
+        new_score = (score.index('.') ? score.to_f : score.to_i) + by
+        self.zadd(key, new_score, val)
+        new_score.to_s
+      end
+
       def zrem(key, val)
         with_type(key, 'sorted_set') do
           expunge_if_expired(key)  

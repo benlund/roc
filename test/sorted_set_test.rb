@@ -86,7 +86,11 @@ class SortedSetTest < ROCTest
     s << [4, 'c']
 
     assert_equal 2, s.remrangebyrank(1, 2)
-    
+
+    assert_equal '7', s.incrby(1, 'w')
+    assert_equal ['a', 'y', 'w'], s.values   
+    assert_equal '6', s.incrby(-1, 'w')
+
     #set ops
 
     os = Store.init_sorted_set(random_key)

@@ -45,6 +45,11 @@ module ROC
     nonserializing_method :zscore
     alias score zscore
 
+    def zincrby(by, val)
+      self.call :zincrby, by, val
+    end
+    alias incrby zincrby
+
     nonserializing_method :zrem
     alias rem zrem
 
@@ -125,7 +130,6 @@ module ROC
     def reverse
       self.zrevrange(0, -1)
     end
-
 
     ## implement (if posible) destructive methods that would otherwise raise
 
