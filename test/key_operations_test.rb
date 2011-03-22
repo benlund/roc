@@ -37,21 +37,21 @@ class KeyOperationsTest < ROCTest
     s3 = Store.init_set(r3, ['someseed', 'someotherseed'])
     s4 = Store.init_sorted_set(r4, [[1, 'someseed'], [2, 'someotherseed']])
 
-    assert_equal @keys_used.sort, Store.keys.sort
-    assert @keys_used.include?(Store.randomkey)
+    assert_equal @keys_used.sort, (Store.call :keys).sort
+    assert @keys_used.include?(Store.call :randomkey)
 
-    assert(Store.rename r1, r2)
+    assert(Store.call :rename, r1, r2)
     assert !s1.exists?
 
-    assert_raises ArgumentError do 
-      Store.rename r1, r2
+    assert_raises ArgumentError, RuntimeError do 
+      Store.call :rename, r1, r2
     end
 
     r5 = random_key
 
-    assert !(Store.renamenx r3, r4)
-    assert (Store.renamenx r3, r5)
-    assert_equal ['someseed', 'someotherseed'], Store.init_set(r5).values
+    assert !(Store.call :renamenx, r3, r4)
+    assert (Store.call :renamenx, r3, r5)
+    assert_equal ['someseed', 'someotherseed'].sort, Store.init_set(r5).values.sort
   end
 
 end

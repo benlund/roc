@@ -92,8 +92,12 @@ module ROC
         end
       end
 
-      def keys
-        self.keyspace.keys
+      def keys(pattern='*')
+        if '*' == pattern
+          self.keyspace.keys
+        else
+          raise "patterns not implemented yet"
+        end
       end
 
       def move(key, db)
