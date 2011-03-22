@@ -93,11 +93,11 @@ module ROC
       end
 
       def keys
-        raise "unimplemented"
+        self.keyspace.keys
       end
 
       def move(key, db)
-        raise "unimplemented"
+        raise NotImplementedError
       end
 
       def persist(key)
@@ -110,19 +110,38 @@ module ROC
       end
 
       def randomkey
-        raise "unimplemented"
+        ks = self.keys
+        ks[Kernel.rand(ks.size)]
       end
 
       def rename(key, newkey)
-        raise "unimplemented"
+        if key.to_s == newkey.to_s
+          raise ArgumentError, "keys are the same"
+        elsif self.exists(key)
+          self.keyspace[newkey.to_s] = self.keyspace.delete(key.to_s)
+          true
+        else
+          raise ArgumentError, "no such key: #{key}"
+        end
       end
 
       def renamenx(key, newkey)
-        raise "unimplemented"
+        if key.to_s == newkey.to_s
+          raise ArgumentError, "keys are the same"
+        elsif self.exists(key)
+          if self.exists(newkey)
+            false
+          else
+            self.keyspace[newkey.to_s] = self.keyspace.delete(key.to_s)
+            true
+          end
+        else
+          raise ArgumentError, "no such key: #{key}"
+        end
       end
 
       def sort(*args)
-        raise "unimplemented"
+        raise NotImplementedError
       end
 
       def ttl(key)
