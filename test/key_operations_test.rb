@@ -26,7 +26,7 @@ class KeyOperationsTest < ROCTest
     assert(str.ttl == -1)
   end
 
-  def test_keys
+  def test_keys_and_types
     r1 = random_key
     r2 = random_key
     r3 = random_key
@@ -36,6 +36,11 @@ class KeyOperationsTest < ROCTest
     s2 = Store.init_list(r2, ['someseed', 'someotherseed'])
     s3 = Store.init_set(r3, ['someseed', 'someotherseed'])
     s4 = Store.init_sorted_set(r4, [[1, 'someseed'], [2, 'someotherseed']])
+
+    assert_equal 'string', (Store.call :type, r1)
+    assert_equal 'list', (Store.call :type, r2)
+    assert_equal 'set', (Store.call :type, r3)
+    assert_equal 'zset', (Store.call :type, r4)
 
     assert_equal @keys_used.sort, (Store.call :keys).sort
     assert @keys_used.include?(Store.call :randomkey)
@@ -48,6 +53,7 @@ class KeyOperationsTest < ROCTest
     end
 
     r5 = random_key
+    assert_equal 'none', (Store.call :type, r5)
 
     assert !(Store.call :renamenx, r3, r4)
     assert (Store.call :renamenx, r3, r5)

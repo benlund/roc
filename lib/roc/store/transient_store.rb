@@ -49,8 +49,8 @@ module ROC
 
       public
 
-      def call(method_name, key, *args)
-        send method_name, key, *args
+      def call(method_name, *args)
+        send method_name, *args
       end
 
       ## start of redis methods
@@ -683,7 +683,7 @@ module ROC
       # Sorted Sets
 
       def zadd(key, score, val)
-        with_type(key, 'sorted_set') do
+        with_type(key, 'zset') do
           if !self.exists(key)
             self.keyspace[key.to_s] = {:map => {}, :list => []}
           end
@@ -698,7 +698,7 @@ module ROC
       end
 
       def zcard(key)
-        with_type(key, 'sorted_set') do
+        with_type(key, 'zset') do
           expunge_if_expired(key)  
           val = self.keyspace[key.to_s]
           if val.nil?
@@ -710,7 +710,7 @@ module ROC
       end
 
       def zrange(key, start_index, stop_index, opts={})
-        with_type(key, 'sorted_set') do
+        with_type(key, 'zset') do
           expunge_if_expired(key)  
           val = self.keyspace[key.to_s]
           if val.nil? || (start_index >= val[:list].size) || ( (start_index < 0) && (stop_index < start_index) )
@@ -731,7 +731,7 @@ module ROC
       end
 
       def zrevrange(key, start_index, stop_index, opts={})
-        with_type(key, 'sorted_set') do
+        with_type(key, 'zset') do
           expunge_if_expired(key)  
           val = self.keyspace[key.to_s]
           if val.nil? || (start_index >= val[:list].size) || ( (start_index < 0) && (stop_index < start_index) )
@@ -753,7 +753,7 @@ module ROC
       end
 
       def zrangebyscore(key, min, max, opts={})
-        with_type(key, 'sorted_set') do
+        with_type(key, 'zset') do
           expunge_if_expired(key)  
           val = self.keyspace[key.to_s]
           if val.nil?
@@ -820,7 +820,7 @@ module ROC
       end
 
       def zrank(key, val)
-        with_type(key, 'sorted_set') do
+        with_type(key, 'zset') do
           expunge_if_expired(key)  
           hsh = self.keyspace[key.to_s]
           if hsh.nil?
@@ -841,7 +841,7 @@ module ROC
       end
 
       def zscore(key, val)
-        with_type(key, 'sorted_set') do
+        with_type(key, 'zset') do
           expunge_if_expired(key)  
           hsh = self.keyspace[key.to_s]
           if hsh.nil?
@@ -865,7 +865,7 @@ module ROC
       end
 
       def zrem(key, val)
-        with_type(key, 'sorted_set') do
+        with_type(key, 'zset') do
           expunge_if_expired(key)  
           hsh = self.keyspace[key.to_s]
           if hsh.nil?
@@ -910,7 +910,7 @@ module ROC
       def zunionstore(key, other_keys, opts)
         raise ArgumentError, 'zunionstore needs at least one key' unless other_keys.size > 0
         raise ArgumentError, 'mismatch weights count' unless (!opts.has_key?(:weights) || (opts[:weights].size == other_keys.size))
-        with_type(key, 'sorted_set') do
+        with_type(key, 'zset') do
           sorted_sets = other_keys.map{|k| self.keyspace[k.to_s]}.compact
           u = sorted_sets.pop
           if u
@@ -930,7 +930,7 @@ module ROC
 
       def zinterstore(key, other_keys, opts)
         raise ArgumentError, 'zinterstore needs at least one key' unless other_keys.size > 0
-        with_type(key, 'sorted_set') do
+        with_type(key, 'zset') do
           sorted_sets = other_keys.map{|k| self.keyspace[k.to_s]}.compact
           i = sorted_sets.pop
           if i
