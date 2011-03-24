@@ -58,6 +58,10 @@ class KeyOperationsTest < ROCTest
     assert !(Store.call :renamenx, r3, r4)
     assert (Store.call :renamenx, r3, r5)
     assert_equal ['someseed', 'someotherseed'].sort, Store.init_set(r5).values.sort
+
+    assert_raises TypeError, RuntimeError do 
+      Store.init_sorted_set(r5).add(1, 'z')
+    end
   end
 
 end
