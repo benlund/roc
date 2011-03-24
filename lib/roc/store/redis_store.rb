@@ -1,3 +1,6 @@
+if RUBY_VERSION.match(/^1\.8/)
+  require 'rubygems'
+end
 require 'redis'
 require 'roc/ext/redis_ext'
 require 'roc/store/object_initializers'

@@ -249,7 +249,11 @@ module ROC
 
         bitstring = self.get(key).unpack('B*')[0]
         if index < bitstring.length
-          bitstring[index].to_i
+          if RUBY_VERSION.match(/^1\.8/)
+            bitstring[index].chr.to_i
+          else
+            bitstring[index].to_i
+          end
         else
           0
         end
@@ -261,12 +265,16 @@ module ROC
 
         bitstring = self.get(key).unpack('B*')[0]
         current_val = 0
-        if index < bitstring.length         
-          current_val = bitstring[index].to_i
+        if index < bitstring.length
+          current_val = if RUBY_VERSION.match(/^1\.8/)
+                          bitstring[index].chr.to_i
+                        else
+                          bitstring[index].to_i
+                        end
           bitstring[index] = value.to_s
         else
           bitstring << ('0' * (index - bitstring.length))
-          bitstring << value
+          bitstring << value.to_s
         end
         self.set(key, [bitstring].pack('B*'))
         current_val
@@ -297,8 +305,9 @@ module ROC
           length = self.strlen(key)
           padding_length = start_index - length
           v = val.to_s
-          if padding_length > 0
-            self.keyspace[key.to_s][length, padding_length + v.length] = ("\u0000" * padding_length) + v
+          if padding_length > 0            
+            #self.keyspace[key.to_s][length, padding_length + v.length] = ("\u0000" * padding_length) + v
+            self.keyspace[key.to_s][length, padding_length + v.length] = ("\000" * padding_length) + v
           else
             self.keyspace[key.to_s][start_index, v.length] = v
           end
@@ -307,7 +316,11 @@ module ROC
       end
 
       def strlen(key)
-        self.get(key).bytesize
+        if "".respond_to?(:bytesize)
+          self.get(key).bytesize
+        else
+          self.get(key).length
+        end
       end
 
       def incr(key)
@@ -794,8 +807,8 @@ module ROC
 
             ret = []
 
-            pass = lambda { |val, op, incl, test|
-              val.send( op + (incl ? '=' : ''), test)
+            pass = lambda { |v, op, incl, test|
+              v.send( op + (incl ? '=' : ''), test)
             }
 
             val[:list].each do |v|

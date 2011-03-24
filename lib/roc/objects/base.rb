@@ -39,7 +39,7 @@ module ROC
       if self.class.const_get('DELEGATE_OPTIONS') && 
           (delegate_type = self.class.const_get('DELEGATE_OPTIONS')[:on]) && 
           delegate_type.respond_to?(method_name) &&
-          (method_name.to_s[method_name.length - 1] != '!') # we won't delegate modifying methods
+          (method_name.to_s[method_name.to_s.length - 1] != '!') # we won't delegate modifying methods
         self.send(self.class.const_get('DELEGATE_OPTIONS')[:to]).send(method_name, *args, &block)
       else
         super(method_name, *args, &block)        

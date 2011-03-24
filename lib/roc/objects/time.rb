@@ -17,7 +17,11 @@ module ROC
     ## implementing scalar type required methods ##
 
     def serialize(val)
-      val.to_i.to_s + '.' + val.nsec.to_s ##strait to_f loses precision
+      if ::Time.now.respond_to?(:nsec)
+        val.to_i.to_s + '.' + val.nsec.to_s ##strait to_f loses precision
+      else
+        val.to_i.to_s + '.' + val.usec.to_s ##strait to_f loses precision
+      end
     end
 
     def deserialize(val)
@@ -25,7 +29,11 @@ module ROC
         nil
       else
         parts = val.split('.')
-        ::Time.at(parts[0].to_i, (parts[1].to_i / 1000))
+        if ::Time.now.respond_to?(:nsec)
+          ::Time.at(parts[0].to_i, (parts[1].to_i / 1000))
+        else
+          ::Time.at(parts[0].to_i, parts[1].to_i)
+        end
       end
     end
 

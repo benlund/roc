@@ -11,7 +11,9 @@ class TimeTest < ROCTest
     assert_equal now.to_i, t.value.to_i
     assert_equal now.to_f, t.value.to_f
     assert_equal now.usec, t.value.usec
-    assert_equal now.nsec, t.value.nsec
+    if Time.now.respond_to?(:nsec)
+      assert_equal now.nsec, t.value.nsec
+    end
   end
 
   def test_delegation
