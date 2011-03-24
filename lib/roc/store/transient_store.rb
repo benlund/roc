@@ -247,7 +247,7 @@ module ROC
       def getbit(key, index)
         raise ArgumentError, 'setbit takes a non-negative index' unless index > 0
 
-        bitstring = self.get(key).to_s.unpack('B*')[0]
+        bitstring = self.get(key).unpack('B*')[0]
         if index < bitstring.length
           bitstring[index].to_i
         else
@@ -259,7 +259,7 @@ module ROC
         raise ArgumentError, 'setbit takes a non-negative index' unless index > 0
         raise ArgumentError, 'setbit takes a 1 or 0 for the value' unless((0 == value) || (1 == value))
 
-        bitstring = self.get(key).to_s.unpack('B*')[0]
+        bitstring = self.get(key).unpack('B*')[0]
         current_val = 0
         if index < bitstring.length         
           current_val = bitstring[index].to_i
@@ -276,7 +276,12 @@ module ROC
       def getrange(key, first_index, last_index)
         if self.exists(key)
           with_type(key, 'string') do
-            self.keyspace[key.to_s][first_index..last_index]
+            arr = self.keyspace[key.to_s].bytes.to_a[first_index..last_index]
+            if arr
+              arr.map{|c| c.chr}.join('')
+            else
+              nil
+            end
           end
         else
           ''
@@ -291,17 +296,18 @@ module ROC
           end
           length = self.strlen(key)
           padding_length = start_index - length
+          v = val.to_s
           if padding_length > 0
-            self.keyspace[key.to_s][length, padding_length + val.length] = ("\u0000" * padding_length) + val
+            self.keyspace[key.to_s][length, padding_length + v.length] = ("\u0000" * padding_length) + v
           else
-            self.keyspace[key.to_s][start_index, val.length] = val
+            self.keyspace[key.to_s][start_index, v.length] = v
           end
           self.strlen(key)
         end
       end
 
       def strlen(key)
-        self.get(key).to_s.bytesize
+        self.get(key).bytesize
       end
 
       def incr(key)
@@ -355,7 +361,7 @@ module ROC
           if !self.exists(key)
             self.keyspace[key.to_s] = []
           end
-          self.keyspace[key.to_s] << val
+          self.keyspace[key.to_s] << val.to_s
           self.keyspace[key.to_s].size
         end
       end
@@ -373,7 +379,7 @@ module ROC
           if !self.exists(key)
             self.keyspace[key.to_s] = []
           end
-          self.keyspace[key.to_s].unshift( val )
+          self.keyspace[key.to_s].unshift( val.to_s )
           self.keyspace[key.to_s].size
         end
       end
@@ -433,7 +439,7 @@ module ROC
           elsif ((ind < 0) && (ind < -arr.size)) || (ind >= arr.size)
             raise ArgumentError, "index out of range: #{ind}"
           else
-            self.keyspace[key.to_s][ind] = val
+            self.keyspace[key.to_s][ind] = val.to_s
           end
         end
       end
@@ -533,13 +539,14 @@ module ROC
 
       def sadd(key, val)
         with_type(key, 'set') do
+          v = val.to_s
           if !self.exists(key)
             self.keyspace[key.to_s] = {}
           end
-          if self.keyspace[key.to_s].has_key?(val)
+          if self.keyspace[key.to_s].has_key?(v)
             false
           else
-            self.keyspace[key.to_s][val] = true
+            self.keyspace[key.to_s][v] = true
             true
           end
         end
@@ -593,7 +600,7 @@ module ROC
           if hsh.nil?
            false
           else
-            hsh.has_key?(val)
+            hsh.has_key?(val.to_s)
           end
         end
       end
@@ -684,14 +691,22 @@ module ROC
 
       def zadd(key, score, val)
         with_type(key, 'zset') do
+          s = if score.is_a?(Fixnum)
+                score
+              elsif score.is_a?(String)
+                (score.index('.') ? score.to_f : score.to_i)
+              else
+                raise ArgumentError, 'score is not numeric'
+              end
           if !self.exists(key)
             self.keyspace[key.to_s] = {:map => {}, :list => []}
           end
           ret = true
-          if self.keyspace[key.to_s][:map].has_key?(val)
+          v = val.to_s
+          if self.keyspace[key.to_s][:map].has_key?(v)
             ret = false
           end
-          self.keyspace[key.to_s][:map][val] = score
+          self.keyspace[key.to_s][:map][v] = s
           self.resort(key)
           ret
         end

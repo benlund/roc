@@ -58,9 +58,9 @@ class StringTest < ROCTest
     assert_equal "qbupsidec\u0000x\u0000", str.value
 
     # length
-    assert_equal 12, str.length
+    assert_equal 12, str.bytesize
     str << "∂ƒ"
-    assert_equal 17, str.length
+    assert_equal 17, str.bytesize
   end
 
   def test_setex
@@ -81,6 +81,22 @@ class StringTest < ROCTest
     assert_equal -1, str.ttl
   end
 
+  def test_shortcut
+    #get/setbyte
+
+    raw_str = 'quick brown fox!´®†∑∂ƒ©'
+    str = Store.init_string(random_key, raw_str)
+
+    # go one over to test nil
+    (0..raw_str.bytesize).each do |i|
+      assert_equal raw_str.getbyte(i), str.getbyte(i)
+    end
+
+    assert_equal raw_str.setbyte(6, 98), str.setbyte(6, 98)
+    assert_equal raw_str, str.to_s
+
+  end
+
   def test_delegation
     str = Store.init_string(random_key, 'x')
     assert_equal 'xx', (str + 'x')
@@ -88,6 +104,16 @@ class StringTest < ROCTest
     assert_equal "321", str.reverse
     str << 'x32'
     assert_equal 3, str.match(/(\d+)/)[1].size
+
+    raw_str = 'quick brown fox!´®†∑∂ƒ©'
+    str = Store.init_string(random_key, raw_str)
+
+    assert_equal raw_str[4], str[4]
+    assert_equal raw_str[4, 3], str[4, 3]
+    assert_equal raw_str[4..10], str[4..10]
+    assert_equal raw_str[4...10], str[4...10]
+    assert_equal raw_str[raw_str.length - 4], str[raw_str.length - 4]
+    assert_equal raw_str[raw_str.length - 4, 3], str[raw_str.length - 4, 3],
   end
 
 end

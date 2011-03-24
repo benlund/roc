@@ -36,8 +36,23 @@ module ROC
     alias splice setrange
 
     zero_arg_method :strlen
-    alias length strlen
-    alias size strlen
+    alias bytesize strlen
+
+    ## shortcut methods
+
+    def getbyte(ind)
+      val = self.getrange(ind, ind)
+      if val.nil? || ('' == val)
+        nil
+      else
+        val.bytes.to_a[0]
+      end
+    end
+
+    def setbyte(ind, int)
+      self.setrange(ind, int.chr)
+      int
+    end
 
     ## implementing scalar type required methods ##
 
