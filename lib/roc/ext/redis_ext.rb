@@ -9,4 +9,12 @@ class Redis
     @client.call(:zrevrangebyscore, key, max, min, *command.to_a)
   end
 
+  def del(*keys)
+    _bool @client.call(:del, *keys)
+  end
+
+  def hdel(key, field)
+    _bool @client.call(:hdel, key, field)
+  end
+
 end

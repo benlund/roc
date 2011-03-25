@@ -40,7 +40,9 @@ module ROC
         md = self.mdspace[key.to_s]
         if md.nil? || (md[:type] == type)
           ret = yield
-          self.mdspace[key.to_s] ||= {:type => type}
+          if self.keyspace[key.to_s]
+            self.mdspace[key.to_s] ||= {:type => type}
+          end
           ret
         else
           raise TypeError, "#{type} required"
@@ -976,7 +978,109 @@ module ROC
         end
       end
 
+      # Hashes
+
+      def hget(key, field)
+        with_type(key, 'hash') do
+          expunge_if_expired(key)  
+          hsh = self.keyspace[key.to_s]
+          if !hsh.nil? && hsh.has_key?(field.to_s)
+            hsh[field.to_s]            
+          else
+            nil
+          end
+        end
+      end
+
+      def hexists(key, field)
+        with_type(key, 'hash') do
+          self.exists(key) && self.keyspace[key.to_s].has_key?(field.to_s)
+        end
+      end
+
+      def hset(key, field, val)
+        with_type(key, 'hash') do
+          f = field.to_s
+          v = val.to_s
+          if !self.exists(key)
+            self.keyspace[key.to_s] = {}
+          end
+          ret = !self.keyspace[key.to_s].has_key?(f)
+          self.keyspace[key.to_s][f] = v
+          ret
+        end
+      end
+
+      def hgetall(key)
+        with_type(key, 'hash') do
+          hsh = self.keyspace[key.to_s]
+          if hsh
+            hsh.dup
+          else
+            {}
+          end
+        end
+      end
+
+      def hkeys(key)        
+        if hsh = self.hgetall(key)
+          hsh.keys
+        else
+          []
+        end
+      end
+
+      def hvals(key)        
+        if hsh = self.hgetall(key)
+          hsh.values
+        else
+          []
+        end
+      end
+
+      def hlen(key)        
+        if hsh = self.hgetall(key)
+          hsh.size
+        else
+          0
+        end
+      end
+
+      def hdel(key, field)
+        with_type(key, 'hash') do
+          self.exists(key) && !!self.keyspace[key.to_s].delete(field.to_s)
+        end
+      end
+
+      def hincrby(key, field, by)
+        raise "value (#{by}) is not an integer" unless by.is_a?(::Integer)
+        val = self.hget(key, field)
+        new_val = val.to_i + by
+        self.hset(key, field, new_val)
+        new_val
+      end
       
+      def hmget(key, *fields)
+        fields.map{|f| self.hget(key, f)}        
+      end
+
+      def hmset(key, *pairs)
+        i = 0
+        while i < pairs.length
+          self.hset(key, pairs[i], pairs[i+1])
+          i += 2
+        end
+        true
+      end
+
+      def hsetnx(key, field, val)
+        if self.hexists(key, field)
+          false
+        else
+          self.hset(key, field, val)
+        end
+      end
+
       # non-public helpers for redis methods
       protected
 

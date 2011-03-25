@@ -18,6 +18,14 @@ module ROC
         case t = self.call(:type, key)
         when 'string'
           ROC::String
+        when 'list'
+          ROC::List
+        when 'set'
+          ROC::Set
+        when 'zset'
+          ROC::SortedSet
+        when 'hash'
+          ROC::Hash
         when 'none'
           nil
         else

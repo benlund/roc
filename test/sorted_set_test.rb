@@ -2,6 +2,17 @@ require File.join(File.dirname(__FILE__), 'roc_test')
 
 class SortedSetTest < ROCTest
 
+  def test_find
+    k = random_key
+    obj = Store.find(k)
+    assert_nil obj
+
+    Store.init_sorted_set(k, [[1, 'dsdfsd']])
+    obj = Store.find(k)
+    assert_equal ROC::SortedSet, obj.class
+    assert_equal ['dsdfsd'], obj.values
+  end
+
   def test_rw
 
     s = Store.init_sorted_set(random_key)

@@ -2,6 +2,17 @@ require File.join(File.dirname(__FILE__), 'roc_test')
 
 class SetTest < ROCTest
 
+  def test_find
+    k = random_key
+    obj = Store.find(k)
+    assert_nil obj
+
+    Store.init_set(k, ['dsdfsd'])
+    obj = Store.find(k)
+    assert_equal ROC::Set, obj.class
+    assert_equal ['dsdfsd'], obj.values
+  end
+
   def test_rw
     s = Store.init_set(random_key)
     assert_equal 0, s.size

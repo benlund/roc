@@ -2,6 +2,17 @@ require File.join(File.dirname(__FILE__), 'roc_test')
 
 class ListTest < ROCTest
 
+  def test_find
+    k = random_key
+    obj = Store.find(k)
+    assert_nil obj
+
+    Store.init_list(k, ['dsdfsd'])
+    obj = Store.find(k)
+    assert_equal ROC::List, obj.class
+    assert_equal ['dsdfsd'], obj.values
+  end
+
   def test_rw
     l = Store.init_list(random_key)
     assert_equal [], l.values

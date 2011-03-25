@@ -11,6 +11,7 @@ class StringTest < ROCTest
     Store.init_string(k, 'dsdfsd')
     obj = Store.find(k)
     assert_equal ROC::String, obj.class
+    assert_equal 'dsdfsd', obj.value
   end
 
   def test_rw
