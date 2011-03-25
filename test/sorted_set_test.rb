@@ -137,6 +137,17 @@ class SortedSetTest < ROCTest
     assert_equal ['w', 'y'], is.values
     assert_equal ['w', '6', 'y', '6'], is.values(:with_scores => true)    
 
+    #multiple
+
+    yos = Store.init_sorted_set(random_key, [{:value => 'z', :score => 1}])
+    us.set_as_union_of(s, os, yos)
+    is.set_as_intersect_of(s, os, yos)
+    assert_equal [ 'a', 'z', 'y', 'w'], us.values
+    assert_equal [], is.values
+    yos << [2, 'w']
+    is.set_as_intersect_of(s, os, yos)
+    assert_equal ['w', '15'], is.values(:with_scores => true)
+
   end
 
   def test_shortcuts

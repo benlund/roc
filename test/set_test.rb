@@ -43,6 +43,15 @@ class SetTest < ROCTest
     assert_equal ['w'], (s - os).sort
     assert_equal ['z'], (os - s).sort
 
+    yos = Store.init_set(random_key, ['a', 'y', 'z'])
+    assert_equal ['a', 'w', 'y', 'z'], (s.union(os, yos)).sort
+    assert_equal ['y'], s.intersect(os, yos)
+    yos.rem('y')
+    assert_equal [], s.intersect(os, yos)
+    assert_equal [], os.diff(s, yos)
+    yos.rem('z')
+    assert_equal ['z'], os.diff(s, yos)
+
     i_set = Store.init_set(random_key)
     u_set = Store.init_set(random_key)
     d1_set = Store.init_set(random_key)
