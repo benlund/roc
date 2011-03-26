@@ -6,8 +6,8 @@ class HashTest < ROCTest
 
     h = Store.init_hash(random_key)
 
-    assert (h['foo'] = 'bar')
-    assert (h['bar'] = 'baz')
+    assert(h['foo'] = 'bar')
+    assert(h['bar'] = 'baz')
     assert_equal 'bar', h['foo']
     assert h.has_key?('bar')
     assert !h.has_key?('baz')
@@ -31,8 +31,6 @@ class HashTest < ROCTest
     h.decrement('count', 2)
     assert_equal 4, h['count'].to_i
 
-    assert_equal ['4', 'bar'], h['count', 'foo']
-
     assert h.mset('decaf', 'coffee', 'caffinated', 'tea')
     assert_equal( {'foo' => 'bar', 'count' => '4', 'decaf' => 'coffee', 'caffinated' => 'tea'}, h.getall )
 
@@ -44,7 +42,23 @@ class HashTest < ROCTest
   end
 
   def test_shortcuts
-    ##merge!
+    h = Store.init_hash(random_key)
+    assert h.empty?
+    h.merge!({'count' => 4, 'foo' => 'bar'})
+    assert_equal ['4', 'bar'], h.values_at('count', 'foo')
+    assert h.has_value?('bar')
+    assert !h.has_value?('foo')
+    assert_equal 'bar', h.delete('foo')
+    assert_nil h.delete('foo')
+    assert_raises NotImplementedError do
+      h.shift
+    end
+    assert_raises NotImplementedError do
+      h.replace('bar' => 'baz')
+    end
+    assert_raises NotImplementedError do
+      h.delete_if{true}
+    end
   end
 
   def test_delegation

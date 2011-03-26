@@ -4,10 +4,10 @@ module ROC
   class Base
     include ROC::Types::AllTypes
 
-    attr_reader :store, :key
+    attr_reader :storage, :key
 
-    def initialize(store, key, seed_data=nil)
-      @store = store
+    def initialize(storage, key, seed_data=nil)
+      @storage = storage
       @key = key
       if !seed_data.nil?
         seed(seed_data)
@@ -39,7 +39,7 @@ module ROC
       if self.class.const_get('DELEGATE_OPTIONS') && 
           (delegate_type = self.class.const_get('DELEGATE_OPTIONS')[:on]) && 
           delegate_type.respond_to?(method_name) &&
-          (method_name.to_s[method_name.to_s.length - 1] != '!') # we won't delegate modifying methods
+          !['!', '='].include?(method_name.to_s[method_name.to_s.length - 1]) # we won't delegate modifying methods
         self.send(self.class.const_get('DELEGATE_OPTIONS')[:to]).send(method_name, *args, &block)
       else
         super(method_name, *args, &block)        
@@ -47,11 +47,10 @@ module ROC
     end
 
 
-
     protected
 
     def call(remote_method_name, *args)
-      self.store.call(remote_method_name, self.key, *args)
+      self.storage.call(remote_method_name, self.key, *args)
     end
 
   end

@@ -8,8 +8,6 @@ module ROC
     nonserializing_method :hdel
 
     nonserializing_method :hexists
-    alias exists hexists
-    alias exists? hexists
     alias key? hexists
     alias has_key? hexists
     alias member? hexists
@@ -17,6 +15,7 @@ module ROC
 
     nonserializing_method :hget
     alias get hget
+    alias [] hget
 
     zero_arg_method :hgetall
     alias getall hgetall
@@ -49,6 +48,7 @@ module ROC
     end
     alias set hset
     alias []= hset
+    alias store hset
 
     def hsetnx(field, val)
       self.call :hsetnx, field, val
@@ -61,12 +61,15 @@ module ROC
 
     # shortcuts/helpers
 
-    def [](*args)
-      if 1 == args.size
-        self.hget(args[0])
-      else
-        self.hmget(*args)
-      end
+    alias values_at hmget
+
+    def has_value?(val)
+      self.values.include?(val)
+    end
+    alias value? has_value?
+
+    def empty?
+      0 == self.hlen
     end
 
     def decrby(field, by)
@@ -81,7 +84,13 @@ module ROC
       self.hincrby field, -(by || 1)
     end
 
-    ## destructive
+    ## implement (if posible) destructive methods that would otherwise raise
+
+    def merge!(hsh)
+      raise ArgumentError, 'block version not supported' if block_given?
+      self.hmset(*hsh.to_a.flatten)
+    end
+    alias update merge!
 
     def delete(field)
       val = self.hget(field)
@@ -89,9 +98,25 @@ module ROC
       val
     end
 
+    def delete_if
+      raise NotImplementedError
+    end
+
+    def replace(hsh)
+      raise NotImplementedError
+    end
+
+    def shift
+      raise NotImplementedError
+    end
+
     ## implementing for delegate
 
     alias to_hash getall
+
+    def clobber(data)
+      self.merge!(data)
+    end
 
   end
 end
