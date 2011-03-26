@@ -52,7 +52,12 @@ module ROC
       public
 
       def call(method_name, *args)
-        send method_name, *args
+        if @multi_mode
+          @multi_calls << [method_name, *args]
+          'QUEUED'
+        else
+          self.send method_name, *args
+        end
       end
 
       ## start of redis methods
@@ -1079,6 +1084,57 @@ module ROC
         else
           self.hset(key, field, val)
         end
+      end
+
+      # Transactions
+
+      def multi
+        if @multi_mode
+          raise "multi calls can't be nested"
+        else
+          @multi_mode = true
+          @multi_calls = []
+          if block_given?
+            yield
+            self.exec
+          end
+        end
+      end
+
+      def exec
+        if @multi_mode
+          @multi_mode = false
+          ret = []
+          @multi_calls.each do |call|
+            ret << (self.call *call)
+          end
+          @multi_calls = []
+          ret
+        else
+          raise "exec without a multi"
+        end
+      end
+
+      def discard
+        if @multi_mode
+          @multi_mode = false
+          @multi_calls = []          
+        else
+          raise "discard without a multi"
+        end
+      end
+
+      def watch(*keys)
+        if @multi_mode
+          raise "watch inside multi not allowed"
+        end
+        ## nothing, we are non concurrent
+        true
+      end
+
+      def unwatch
+        ## nothing, we are non concurrent
+        true
       end
 
       # non-public helpers for redis methods

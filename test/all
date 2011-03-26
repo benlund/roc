@@ -3,8 +3,6 @@
 ENV['ROC_STORE'] ||= 'test'
 #ENV['ROC_STORE'] ||= 'redis://127.0.0.1/1'
 
-# require File.join('.', File.dirname(__FILE__), 'key_operations_test')
-
 # require File.join('.', File.dirname(__FILE__), 'string_test')
 # require File.join('.', File.dirname(__FILE__), 'integer_test')
 # require File.join('.', File.dirname(__FILE__), 'float_test')
@@ -14,4 +12,7 @@ ENV['ROC_STORE'] ||= 'test'
 # require File.join('.', File.dirname(__FILE__), 'set_test')
 # require File.join('.', File.dirname(__FILE__), 'sorted_set_test')
 
-require File.join('.', File.dirname(__FILE__), 'hash_test')
+# require File.join('.', File.dirname(__FILE__), 'hash_test')
+
+# require File.join('.', File.dirname(__FILE__), 'key_operations_test')
+require File.join('.', File.dirname(__FILE__), 'transactions_test')
