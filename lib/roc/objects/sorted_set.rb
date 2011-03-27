@@ -131,6 +131,20 @@ module ROC
       self.zrevrange(0, -1)
     end
 
+    # helpers
+
+    def decrby(by, val)
+      self.zincrby -by, val
+    end
+
+    def increment(val, by=nil)
+      self.zincrby (by || 1), val
+    end
+
+    def decrement(val, by=nil)
+      self.zincrby -(by || 1), val
+    end
+
     ## implement (if posible) destructive methods that would otherwise raise
 
     def delete(val)

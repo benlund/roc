@@ -1137,6 +1137,11 @@ module ROC
         true
       end
 
+      def flushdb
+        TransientStore::KEYSPACES[self.name] = {}
+        TransientStore::MDSPACES[self.name]  ={}
+      end
+
       # non-public helpers for redis methods
       protected
 

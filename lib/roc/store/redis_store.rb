@@ -23,7 +23,7 @@ module ROC
         self.connection.send method_name, *args
       end
 
-      def_delegators :connection, :multi, :exec, :discard, :watch, :unwatch
+      def_delegators :connection, :multi, :exec, :discard, :watch, :unwatch, :flushdb
 
       def inspect
         "<#{self.class} @connection=#{self.connection.inspect}>"

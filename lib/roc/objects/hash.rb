@@ -23,7 +23,7 @@ module ROC
     def hincrby(field, increment)
       self.call :hincrby, field, increment
     end
-    alias incrby hget
+    alias incrby hincrby
 
     zero_arg_method :hkeys
     alias keys hkeys
