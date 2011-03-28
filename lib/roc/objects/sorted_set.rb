@@ -145,6 +145,18 @@ module ROC
       self.zincrby -(by || 1), val
     end
 
+    def to_hash
+      hsh = {}
+      vals_with_scores = self.zrangebyscore('-inf', '+inf', :with_scores => true)
+      i = 0
+      l = vals_with_scores.size
+      while i < l
+        hsh[vals_with_scores[i]] = vals_with_scores[i+1]
+        i += 2
+      end
+      hsh
+    end
+
     ## implement (if posible) destructive methods that would otherwise raise
 
     def delete(val)

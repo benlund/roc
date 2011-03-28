@@ -188,6 +188,15 @@ class SortedSetTest < ROCTest
 
   end
 
+  def test_helpers
+    s = Store.init_sorted_set(random_key)
+    s << [2, 'a']
+    s << [3, 'z']
+    assert_equal '4', s.increment('z')
+    assert_equal '1', s.decrement('a')
+    assert_equal({'a' => '1', 'z' => '4'}, s.to_hash)
+  end
+
   def test_delegation
     s = Store.init_sorted_set(random_key)
     s << [-2, 'a']

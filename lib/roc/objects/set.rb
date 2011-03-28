@@ -76,6 +76,16 @@ module ROC
     alias diff_store sdiffstore
     alias set_as_diff_of sdiffstore
 
+    ## helpers
+
+    def to_hash
+      hsh = {}
+      self.smembers.each do |val|
+        hsh[val] = true
+      end
+      hsh
+    end
+
     ## implement (if posible) destructive methods that would otherwise raise
 
     def delete(val)

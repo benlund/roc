@@ -95,6 +95,11 @@ class SetTest < ROCTest
 
   end
 
+  def test_helpers
+    s = Store.init_set(random_key, ['1','2'])
+    assert_equal({'1' => true, '2' => true}, s.to_hash)
+  end
+
   def test_delegation
     l = Store.init_list(random_key, ['a', 'b', 'c', 'd', 'e', 'f'])
 
