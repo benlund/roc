@@ -7,7 +7,7 @@ Redis Object Collections: a collection of Ruby classes that wrap [Redis](http://
 
     require 'roc'
     
-    Store = RedisStore.new(Redis.connect)
+    Store = ROC::Store::RedisStore.new(Redis.connect)
 
     # objects are initialized inside a store with a key
     rocky_planets = Store.init_sorted_set('rocky_planets')
@@ -29,6 +29,17 @@ Redis Object Collections: a collection of Ruby classes that wrap [Redis](http://
 ## Classes
 
 ## Delegation
+
+## Stores
+
+    ROC::Store::RedisStore
+
+Stores in a Redis backend
+
+    ROC::Store::TransientStore
+
+Stores in-memory Ruby data structures, mimics the Redis API, but no persisence
+
 
 TBC...
 
