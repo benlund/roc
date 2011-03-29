@@ -26,6 +26,9 @@ Redis Object Collection: a collection of Ruby classes that wrap [Redis](http://r
     rocky_planets.include?('Pluto') #=> false        
     rocky_planets.reverse #=> ['Mars', 'Earth', 'Venus', 'Mercury']
 
+
+See test/*.rb for more examples
+
 ## Classes
 
 ## Delegation
