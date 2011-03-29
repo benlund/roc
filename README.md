@@ -1,6 +1,6 @@
 # ROC
 
-Redis Object Collections: a collection of Ruby classes that wrap [Redis](http://redis.io) data structures
+Redis Object Collection: a collection of Ruby classes that wrap [Redis](http://redis.io) data structures
 
 
 ## Summary
