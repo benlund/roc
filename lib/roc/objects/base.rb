@@ -4,12 +4,21 @@ module ROC
   class Base
     include ROC::Types::AllTypes
 
-    attr_reader :storage, :key
+    attr_reader :storage, :key, :options
 
-    def initialize(storage, key, seed_data=nil)
+    def initialize(storage, key, *args)
       @storage = storage
       @key = key
-      if !seed_data.nil?
+
+      if args.last.is_a?(Hash)
+        @options = args.pop
+      end
+
+      if args.size > 1
+        raise ArgumentError, 'new(storage, key, [seed_data], [opts])'
+      end
+
+      if !(seed_data = args[0]).nil?
         seed(seed_data)
       end
     end
