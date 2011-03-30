@@ -41,7 +41,7 @@ module ROC
     end
     alias inter sinter
     alias intersect sinter
-    alias & sinter
+    alias :& :sinter ## to make rdoc parser happy
 
     def sunion(*other_sets)
       self.call :sunion, *other_sets.map{|s| s.key}
