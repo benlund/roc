@@ -16,10 +16,10 @@ Redis Object Collection: a collection of Ruby classes that wrap [Redis](http://r
     rocky_planets.add(1, 'Mercury')
     rocky_planets.add(2, 'Venus')
     rocky_planets.add(3, 'Earth')
-    rocky_planets.add(3, 'Mars')
+    rocky_planets.add(4, 'Mars')
     
     # calling ZRANK key value
-    rocky_planets.rank('Mars') #=> '3'
+    rocky_planets.rank('Mars') #=> '4'
 
     # array-like methods
     rocky_planets.include?('Earth') #=> true
