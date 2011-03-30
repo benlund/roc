@@ -8,6 +8,8 @@ module ROC
 
     delegate_methods :on => '', :to => :value
 
+    attr_accessor :encoding
+
     def to_string
       self.value.to_s
     end
@@ -57,11 +59,27 @@ module ROC
     ## implementing scalar type required methods ##
 
     def serialize(val)
-      val
+      ## use the encoding of the first val were sent unless expicitly set
+      if self.encoding.nil?
+        self.encoding = if val.respond_to?(:encoding)
+                          val.encoding
+                        else
+                          'US-ASCII'
+                        end
+      end
+      if val.respond_to?(:encode)
+        val.encode(self.encoding)
+      else
+        val
+      end
     end
     
     def deserialize(val)
-      val
+      if self.encoding.nil? || !val.respond_to?(:force_encoding)
+        val
+      else
+        val.force_encoding(self.encoding)
+      end
     end
 
   end
