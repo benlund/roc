@@ -193,7 +193,9 @@ class SortedSetTest < ROCTest
     s << [2, 'a']
     s << [3, 'z']
     assert_equal '4', s.increment('z')
+    assert_equal '4', s.score('z')
     assert_equal '1', s.decrement('a')
+    assert_equal '1', s.score('a')
     assert_equal({'a' => '1', 'z' => '4'}, s.to_hash)
   end
 
@@ -207,6 +209,19 @@ class SortedSetTest < ROCTest
     s << [3000, 'f']
 
     assert_equal ['ax', 'bx', 'cx', 'dx', 'ex', 'fx'], s.map{|x| x + 'x'}
+  end
+
+  def test_stringification
+    s = Store.init_sorted_set(random_key)
+    s << [2, 14]
+    assert s.include?('14')
+    assert_equal '2', s.score(14)
+    assert_equal '2', s.score('14')
+    assert_equal 0, s.rank(14)
+    assert_equal 0, s.rank('14')
+    assert_equal ['14'], s.values
+    assert s.rem(14)
+    assert_equal [], s.values
   end
 
 end

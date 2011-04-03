@@ -632,7 +632,7 @@ module ROC
           if hsh.nil?
            false
           else
-            !!hsh.delete(val)
+            !!hsh.delete(val.to_s)
           end
         end
       end
@@ -861,7 +861,7 @@ module ROC
           if hsh.nil?
            nil
           else
-            hsh[:list].index(val)
+            hsh[:list].index(val.to_s)
           end
         end
       end
@@ -882,7 +882,7 @@ module ROC
           if hsh.nil?
            nil
           else
-            v = hsh[:map][val]
+            v = hsh[:map][val.to_s]
             if v
               v.to_s
             else
@@ -906,7 +906,7 @@ module ROC
           if hsh.nil?
            false
           else
-            if hsh[:map].delete(val)
+            if hsh[:map].delete(val.to_s)
               self.resort(key)
               true
             else

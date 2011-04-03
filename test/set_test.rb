@@ -107,4 +107,14 @@ class SetTest < ROCTest
 
   end
 
+  def test_stringification
+    s = Store.init_set(random_key)
+    s << 14
+    assert s.include?('14')
+    assert s.include?(14)
+    assert_equal ['14'], s.values
+    assert s.delete(14)
+    assert_equal( [], s.to_a )
+  end
+
 end

@@ -46,3 +46,47 @@ Stores in-memory Ruby data structures, mimics the Redis API, but no persisence
 
 TBC...
 
+
+
+----
+
+Compare to:
+
+http://rubygems.org/gems/redis-objective
+
+http://rubygems.org/gems/redismapper
+
+http://rubygems.org/gems/redisrecord
+
+http://rubygems.org/gems/easyredis
+
+http://rubygems.org/gems/redis-aid
+
+http://rubygems.org/gems/redis-load
+
+http://rubygems.org/gems/ozy
+
+http://rubygems.org/gems/simredis
+
+http://rubygems.org/gems/remodel
+
+http://rubygems.org/gems/redis-types
+
+http://rubygems.org/gems/frivol
+
+http://rubygems.org/gems/redismodel
+
+http://rubygems.org/gems/remodel-h
+
+http://rubygems.org/gems/superfeedr-em-redis
+
+http://rubygems.org/gems/em-redis
+
+https://github.com/nateware/redis-objects
+
+https://github.com/defunkt/redis-namespace
+
+https://github.com/soveran/nest
+
+Ohm
+

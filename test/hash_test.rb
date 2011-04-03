@@ -62,7 +62,18 @@ class HashTest < ROCTest
   end
 
   def test_delegation
-
+    ##@@todo
   end
+
+  def test_stringification
+    h = Store.init_hash(random_key)
+    h[14] = 'double7'
+    assert h.has_key?('14')
+    assert_equal 'double7', h[14]
+    assert_equal 'double7', h['14']
+    assert h.delete(14)
+    assert_equal( {}, h.to_hash )
+  end
+
 
 end
