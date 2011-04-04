@@ -62,7 +62,9 @@ class HashTest < ROCTest
   end
 
   def test_delegation
-    ##@@todo
+    h = Store.init_hash(random_key, {'foo' => 'bar', 'bar' => 'baz'})
+    assert_equal( {'bar' => 'baz'}, h.select{|k, v| k.match(/^b/)} )
+    assert_equal( {'foo' => 'bar', 'bar' => 'baz'}, h.select{|k, v| v.match(/^b/)} )
   end
 
   def test_stringification
