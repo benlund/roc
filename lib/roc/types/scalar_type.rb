@@ -27,7 +27,7 @@ module ROC
       end
 
       def inspect
-        "<#{self.class} @store=#{self.store.inspect} @key=#{self.key.inspect} @value=#{self.value.inspect}>"
+        "<#{self.class} @storage=#{self.storage.inspect} @key=#{self.key.inspect} @value=#{self.value.inspect}>"
       end      
 
       def serialize(val)
