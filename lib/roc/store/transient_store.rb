@@ -323,10 +323,15 @@ module ROC
       end
 
       def strlen(key)
-        if "".respond_to?(:bytesize)
-          self.get(key).bytesize
+        val = self.get(key)
+        if val.nil?
+          0
         else
-          self.get(key).length
+          if "".respond_to?(:bytesize)
+            val.bytesize
+          else
+            val.length
+          end
         end
       end
 

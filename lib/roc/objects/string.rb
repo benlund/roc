@@ -8,7 +8,7 @@ module ROC
 
     delegate_methods :on => '', :to => :value
 
-    attr_accessor :encoding
+    attr_reader :encoding
 
     def to_string
       self.value.to_s
@@ -19,6 +19,7 @@ module ROC
 
     nonserializing_method :append
     alias << append
+    alias concat append
 
     def getrange(first_index, last_index)
       self.call :getrange, first_index, last_index
@@ -56,29 +57,59 @@ module ROC
       int
     end
 
+    def empty?
+      0 == self.strlen
+    end
+
+    def chr
+      self.getrange(0, 0)
+    end
+
+    ## implement (if posible) destructive methods that would otherwise raise
+
+    def replace(val)
+      self.set(val)
+      val
+    end
+
+    def clear
+      self.replace('')
+    end
+
+    def force_encoding(enc)
+      @encoding = enc
+    end
+
+
+    ## raise destructive methods if not implemted
+
+    def insert(ind, val)
+      raise NotImplementedError
+    end
+
     ## implementing scalar type required methods ##
 
     def serialize(val)
       ## use the encoding of the first val were sent unless expicitly set
-      if self.encoding.nil?
-        self.encoding = if val.respond_to?(:encoding)
+      if @encoding.nil?
+        @encoding = if val.respond_to?(:encoding)
                           val.encoding
                         else
                           'US-ASCII'
                         end
       end
       if val.respond_to?(:encode)
-        val.encode(self.encoding)
+        val.encode(@encoding)
       else
         val
       end
     end
     
     def deserialize(val)
-      if self.encoding.nil? || !val.respond_to?(:force_encoding)
+      if @encoding.nil? || !val.respond_to?(:force_encoding)
         val
       else
-        val.force_encoding(self.encoding)
+        val.force_encoding(@encoding)
       end
     end
 

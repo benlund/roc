@@ -84,7 +84,7 @@ class StringTest < ROCTest
     assert_equal -1, str.ttl
   end
 
-  def test_shortcut
+  def test_shortcuts
     #get/setbyte
 
     raw_str = 'quick brown fox!´®†∑∂ƒ©'
@@ -109,6 +109,31 @@ class StringTest < ROCTest
     assert_equal rawset, str.setbyte(6, 98)
     assert_equal raw_str, str.to_s
 
+    assert !str.empty?
+    assert Store.init_string(random_key).empty?
+
+    assert_equal 'q', str.chr
+
+  end
+
+  def test_mask
+    str = Store.init_string(random_key, 'mask me')
+    assert_equal '', str.clear
+    assert_equal '', str.value
+
+    assert_equal 'masked it', str.replace('masked it')
+    assert_equal 'masked it', str.value
+
+    raw_str = "√"
+    str.value = raw_str
+
+    raw_str.force_encoding('US-ASCII')
+    str.force_encoding('US-ASCII')
+    assert_equal raw_str, str.value
+
+    assert_raises NotImplementedError do
+      str.insert(1, 'dfdsf')
+    end
   end
 
   def test_delegation
