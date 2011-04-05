@@ -64,6 +64,7 @@ class StringTest < ROCTest
     assert_equal 12, str.bytesize
     str << "∂ƒ"
     assert_equal 17, str.bytesize
+    assert_equal 0, Store.init_string(random_key).bytesize
   end
 
   def test_setex
