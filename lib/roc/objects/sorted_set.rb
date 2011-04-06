@@ -138,11 +138,11 @@ module ROC
     end
 
     def increment(val, by=nil)
-      self.zincrby (by || 1), val
+      self.zincrby( (by || 1), val )
     end
 
     def decrement(val, by=nil)
-      self.zincrby -(by || 1), val
+      self.zincrby( -(by || 1), val )
     end
 
     def to_hash

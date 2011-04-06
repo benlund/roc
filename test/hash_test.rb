@@ -79,8 +79,13 @@ class HashTest < ROCTest
 
   def test_delegation
     h = Store.init_hash(random_key, {'foo' => 'bar', 'bar' => 'baz'})
-    assert_equal( {'bar' => 'baz'}, h.select{|k, v| k.match(/^b/)} )
-    assert_equal( {'foo' => 'bar', 'bar' => 'baz'}, h.select{|k, v| v.match(/^b/)} )
+    if RUBY_VERSION.match(/^1\.8/)
+      assert_equal( [['bar', 'baz']], h.select{|k, v| k.match(/^b/)} )
+      assert_equal( [['foo', 'bar'], ['bar', 'baz']], h.select{|k, v| v.match(/^b/)} )
+    else
+      assert_equal( {'bar' => 'baz'}, h.select{|k, v| k.match(/^b/)} )
+      assert_equal( {'foo' => 'bar', 'bar' => 'baz'}, h.select{|k, v| v.match(/^b/)} )
+    end
   end
 
   def test_stringification

@@ -21,8 +21,12 @@ module ROC
     ## implement (if posible) destructive methods that would otherwise raise
 
     def localtime(offset=nil)
-      @offset = offset
-      self.value
+      if (0 == ::Time.now.method(:localtime).arity) && !offset.nil?
+        raise ArgumentError, "1.8 Time#localtime doesn't take an arg"
+      else
+        @offset = offset
+      end
+      self
     end
 
     ## implementing scalar type required methods ##
@@ -45,7 +49,11 @@ module ROC
             else
               ::Time.at(parts[0].to_i, parts[1].to_i)
             end
-        t.localtime(@offset)
+        if defined?(@offset)
+          if ::Time.now.method(:localtime).arity > 0
+            t.localtime(@offset)
+          end
+        end
         t
       end
     end

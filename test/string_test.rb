@@ -128,9 +128,11 @@ class StringTest < ROCTest
     raw_str = "√"
     str.value = raw_str
 
-    raw_str.force_encoding('US-ASCII')
-    str.force_encoding('US-ASCII')
-    assert_equal raw_str, str.value
+    if ''.respond_to?(:force_encoding)
+      raw_str.force_encoding('US-ASCII')
+      str.force_encoding('US-ASCII')
+      assert_equal raw_str, str.value
+    end
 
     assert_raises NotImplementedError do
       str.insert(1, 'dfdsf')

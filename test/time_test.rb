@@ -22,13 +22,15 @@ class TimeTest < ROCTest
 
     assert_equal raw_time.zone, t.zone
 
-    assert_equal raw_time.localtime, t.localtime
+    assert_equal raw_time.localtime, t.localtime.to_time
     assert_equal raw_time.zone, t.zone
     assert_equal raw_time.to_s, t.to_s
 
-    assert_equal raw_time.localtime("-08:00"), t.localtime("-08:00")
-    assert_equal raw_time.zone, t.zone
-    assert_equal raw_time.to_s, t.to_s
+    if Time.now.method(:localtime).arity > 0
+      assert_equal raw_time.localtime("-08:00"), t.localtime("-08:00").to_time
+      assert_equal raw_time.zone, t.zone
+      assert_equal raw_time.to_s, t.to_s
+    end
   end
 
   def test_delegation
