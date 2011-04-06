@@ -173,14 +173,31 @@ module ROC
       elsif val_and_score.is_a?(::Hash) && val_and_score.has_key?(:value) && val_and_score.has_key?(:score)
         self.zadd(val_and_score[:score], val_and_score[:value])
       else
-        raise ArgumentError, '<< takes an Array or a Hash'
+        raise ArgumentError, 'an Array or a Hash required'
       end
+      self
+    end
+
+    def push(*objs)
+      if 1 == objs.size
+        self << objs[0]
+      elsif objs.size > 1
+        self.storage.multi do 
+          objs.each do |obj|
+            self << obj
+          end
+        end
+      end
+      self
     end
 
     ## implementing ArrayType ##
 
     def clobber(vals)
-      vals.each{|v| self << v}
+      self.storage.multi do 
+        self.forget
+        vals.each{|v| self << v}
+      end
     end
 
     def values(opts = {})

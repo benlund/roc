@@ -89,6 +89,7 @@ module ROC
     def merge!(hsh)
       raise ArgumentError, 'block version not supported' if block_given?
       self.hmset(*hsh.to_a.flatten)
+      self
     end
     alias update merge!
 
@@ -98,11 +99,16 @@ module ROC
       val
     end
 
-    def delete_if
-      raise NotImplementedError
+    def replace(hsh)
+      self.clobber(hsh)
+      self
     end
 
-    def replace(hsh)
+    def clear
+      self.replace({})
+    end
+
+    def delete_if
       raise NotImplementedError
     end
 
@@ -115,7 +121,12 @@ module ROC
     alias to_hash getall
 
     def clobber(data)
-      self.merge!(data)
+      self.storage.multi do 
+        self.forget
+        if data.size > 0
+          self.merge!(data)          
+        end
+      end
     end
 
   end

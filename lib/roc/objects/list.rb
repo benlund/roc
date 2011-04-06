@@ -14,20 +14,18 @@ module ROC
     zero_arg_method :llen
 
     nonserializing_method :rpush
-    alias push rpush
 
     nonserializing_method :rpushx
+    alias pushx rpushx
 
     nonserializing_method :lpush
-    alias unshift lpush
 
     nonserializing_method :lpushx
+    alias unshiftx lpushx
 
     zero_arg_method :rpop
-    alias pop rpop
 
     zero_arg_method :lpop
-    alias shift lpop
 
     def lset(index, val)
       self.call :lset, index, val
@@ -54,15 +52,16 @@ module ROC
     def linsert(where, pivot, value)
       self.call :linsert, where, pivot, value
     end
-    alias insert linsert
 
-    def insert_before(pivot, value)
-      self.insert('before', pivot, value)
+    def linsert_before(pivot, value)
+      self.linsert('before', pivot, value)
     end
+    alias insert_before linsert_before
 
-    def insert_after(pivot, value)
-      self.insert('after', pivot, value)
+    def linsert_after(pivot, value)
+      self.linsert('after', pivot, value)
     end
+    alias insert_after linsert_after
 
     ## shortcut methods
 
@@ -123,12 +122,71 @@ module ROC
       end
     end
 
-    alias << rpush
+    def push(*objs)
+      if 1 == objs.size
+        self.rpush(objs[0])
+      elsif objs.size > 1
+        self.storage.multi do 
+          objs.each do |obj|
+            self.rpush(obj)
+          end
+        end
+      end
+      self
+    end
+
+    def <<(obj)
+      self.push(obj)
+    end
+
+    def unshift(*objs)
+      if 1 == objs.size
+        self.lpush(objs[0])
+      elsif objs.size > 1
+        self.storage.multi do 
+          objs.reverse.each do |obj|
+            self.lpush(obj)
+          end
+        end
+      end
+      self
+    end
+
+    def pop(*args)
+      if 0 == args.size
+        self.rpop
+      elsif 1 == args.size
+        (self.storage.multi do
+          args[0].times do 
+            self.rpop
+          end
+        end).reverse
+      else
+        raise ArgumentError, "wrong number of arguments (#{args.size} for 1)"
+      end      
+    end
+
+    def shift(*args)
+      if 0 == args.size
+        self.lpop
+      elsif 1 == args.size
+        (self.storage.multi do
+          args[0].times do 
+            self.lpop
+          end
+        end).reverse
+      else
+        raise ArgumentError, "wrong number of arguments (#{args.size} for 1)"
+      end      
+    end
 
     ## implementing ArrayType ##
 
     def clobber(vals)
-      vals.each{|v| self << v}
+      self.storage.multi do 
+        self.forget
+        vals.each{|v| self << v}
+      end
     end
 
     def values

@@ -718,10 +718,10 @@ module ROC
         with_type(key, 'zset') do
           s = if score.is_a?(Fixnum)
                 score
-              elsif score.is_a?(String)
+              elsif score.is_a?(::String)
                 (score.index('.') ? score.to_f : score.to_i)
               else
-                raise ArgumentError, 'score is not numeric'
+                raise ArgumentError, "score is not numeric"
               end
           if !self.exists(key)
             self.keyspace[key.to_s] = {:map => {}, :list => []}

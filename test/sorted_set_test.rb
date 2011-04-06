@@ -199,6 +199,62 @@ class SortedSetTest < ROCTest
     assert_equal({'a' => '1', 'z' => '4'}, s.to_hash)
   end
 
+  def test_mask
+
+    # implemented
+
+    s = Store.init_sorted_set(random_key, [['2','1'], ['3', '2']])
+    assert_equal '1', s.delete('1')
+    assert_equal ['2'], s.values
+
+    assert_equal s, (s << {:score => '0', :value => '1'})
+    assert_equal ['1', '2'], s.values
+    
+    assert_equal s, s.push(['12', '3'], ['100', '4'])
+    assert_equal ['1', '2', '3', '4'], s.values
+
+    assert_equal s, s.replace([['1', 'x']])
+    assert_equal ['x'], s.values
+
+    assert_equal s, s.clear
+    assert_equal [], s.values
+
+    # left unimplemented
+
+    assert_raises NotImplementedError do
+      s.pop
+    end
+
+    assert_raises NotImplementedError do
+      s.shift(3)
+    end
+
+    assert_raises NotImplementedError do
+      s.unshift('3', '4')
+    end
+
+    assert_raises NotImplementedError do
+      s.delete_at(0)
+    end
+
+    assert_raises NotImplementedError do
+      s.delete_if{true}
+    end
+
+    assert_raises NotImplementedError do
+      s.insert(0, 1)
+    end
+
+    assert_raises NotImplementedError do
+      s.fill([])
+    end
+
+    assert_raises NotImplementedError do
+      s.keep_if{true}
+    end   
+
+  end
+
   def test_delegation
     s = Store.init_sorted_set(random_key)
     s << [-2, 'a']

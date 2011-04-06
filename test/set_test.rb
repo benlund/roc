@@ -19,18 +19,18 @@ class SetTest < ROCTest
     assert_equal [], s.values
     assert_equal [], s.to_a
 
-    assert(s << 'a')
-    assert(!(s << 'a'))
+    assert s.add('a')
+    assert !s.add('a')
     assert_equal 1, s.size
     assert_equal 'a', s.pop
     assert !s.exists?
 
-    assert(s << 'z')
+    assert s.add('z')
     assert s.include?('z')
     assert !s.include?('zzz')
     
-    assert(s << 'y')
-    assert(s << 'w')
+    assert s.add('y')
+    assert s.add('w')
     assert ['z','y','w'].include?(s.rand_member)
     assert_equal ['w','y','z'], s.values.sort
     assert_equal 3, s.size
@@ -81,9 +81,38 @@ class SetTest < ROCTest
 
   def test_mask
 
+    # implemented
+
     s = Store.init_set(random_key, ['1','2'])
     assert_equal '1', s.delete('1')
     assert_equal ['2'], s.values
+
+    assert_equal s, (s << '1')
+    assert_equal ['1', '2'], s.values.sort
+    
+    assert_equal s, s.push('3', '4')
+    assert_equal ['1', '2', '3', '4'], s.values.sort
+
+    assert ['1', '2', '3', '4'].include?(s.pop)
+    random_vals = s.pop(2)
+    assert_equal 2, random_vals.size
+    assert (random_vals & s.values).empty?
+
+    assert_equal s, s.replace(['x'])
+    assert_equal ['x'], s.values
+
+    assert_equal s, s.clear
+    assert_equal [], s.values
+
+    # left unimplemented
+
+    assert_raises NotImplementedError do
+      s.shift(3)
+    end
+
+    assert_raises NotImplementedError do
+      s.unshift('3', '4')
+    end
 
     assert_raises NotImplementedError do
       s.delete_at(0)
@@ -92,6 +121,18 @@ class SetTest < ROCTest
     assert_raises NotImplementedError do
       s.delete_if{true}
     end
+
+    assert_raises NotImplementedError do
+      s.insert(0, 1)
+    end
+
+    assert_raises NotImplementedError do
+      s.fill([])
+    end
+
+    assert_raises NotImplementedError do
+      s.keep_if{true}
+    end   
 
   end
 

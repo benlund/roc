@@ -21,7 +21,6 @@ module ROC
     alias members smembers
 
     zero_arg_method :spop
-    alias pop spop
 
     zero_arg_method :srandmember
     alias randmmember srandmember
@@ -96,12 +95,44 @@ module ROC
       end
     end
 
-    alias << sadd
+    def push(*objs)
+      if 1 == objs.size
+        self.sadd(objs[0])
+      elsif objs.size > 1
+        self.storage.multi do 
+          objs.each do |obj|
+            self.sadd(obj)
+          end
+        end
+      end
+      self
+    end
 
+    def <<(obj)
+      self.push(obj)
+    end
+
+    def pop(*args)
+      if 0 == args.size
+        self.spop
+      elsif 1 == args.size
+        (self.storage.multi do
+          args[0].times do 
+            self.spop
+          end
+        end).reverse
+      else
+        raise ArgumentError, "wrong number of arguments (#{args.size} for 1)"
+      end      
+    end
+      
     ## implementing ArrayType ##
 
     def clobber(vals)
-      vals.each{|v| self << v}
+      self.storage.multi do 
+        self.forget
+        vals.each{|v| self << v}
+      end
     end
 
     alias values smembers

@@ -14,6 +14,17 @@ module ROC
       end
     end
 
+    def to_s
+      self.to_time.to_s
+    end
+
+    ## implement (if posible) destructive methods that would otherwise raise
+
+    def localtime(offset=nil)
+      @offset = offset
+      self.value
+    end
+
     ## implementing scalar type required methods ##
 
     def serialize(val)
@@ -29,11 +40,13 @@ module ROC
         nil
       else
         parts = val.split('.')
-        if ::Time.now.respond_to?(:nsec)
-          ::Time.at(parts[0].to_i, (parts[1].to_i / 1000))
-        else
-          ::Time.at(parts[0].to_i, parts[1].to_i)
-        end
+        t = if ::Time.now.respond_to?(:nsec)
+              ::Time.at(parts[0].to_i, (parts[1].to_i / 1000))
+            else
+              ::Time.at(parts[0].to_i, parts[1].to_i)
+            end
+        t.localtime(@offset)
+        t
       end
     end
 

@@ -1,22 +1,33 @@
 #!/usr/bin/env ruby
 
-#ENV['ROC_STORE'] ||= 'test'
-ENV['ROC_STORE'] ||= 'redis://127.0.0.1/1'
+ENV['ROC_STORE'] ||= 'test'
+#ENV['ROC_STORE'] ||= 'redis://127.0.0.1/1'
 
-if !ARGV.include?('gem')
+if ARGV.delete('gem').nil?
   $:.unshift File.join(File.dirname(__FILE__), '..', 'lib')
 end
 
-require File.join('.', File.dirname(__FILE__), 'string_test')
-require File.join('.', File.dirname(__FILE__), 'integer_test')
-require File.join('.', File.dirname(__FILE__), 'float_test')
-require File.join('.', File.dirname(__FILE__), 'time_test')
+testable = [
+            'string',
+            'integer',
+            'float',
+            'time',
+            
+            'list',
+            'set',
+            'sorted_set',
+            
+            'hash',
+            
+            'key_operations',
+            'transactions'
+            ]
 
-require File.join('.', File.dirname(__FILE__), 'list_test')
-require File.join('.', File.dirname(__FILE__), 'set_test')
-require File.join('.', File.dirname(__FILE__), 'sorted_set_test')
-
-require File.join('.', File.dirname(__FILE__), 'hash_test')
-
-require File.join('.', File.dirname(__FILE__), 'key_operations_test')
-require File.join('.', File.dirname(__FILE__), 'transactions_test')
+to_test = testable & ARGV
+if 0 == to_test.size
+  to_test = testable
+end
+to_test.each do |t|
+  puts "=== #{t}_test ==="
+  require File.join('.', File.dirname(__FILE__), "#{t}_test")
+end

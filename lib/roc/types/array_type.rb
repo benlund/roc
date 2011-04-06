@@ -29,6 +29,9 @@ module ROC
       def to_array 
         self.values
       end
+      def to_ary
+        self.values
+      end
       def to_a
         self.values
       end
@@ -38,10 +41,21 @@ module ROC
       end
 
       def inspect
-        "<#{self.class} @store=#{self.store.inspect} @key=#{self.key.inspect} @size=#{self.size}>"
+        "<#{self.class} @storage=#{self.storage.inspect} @key=#{self.key.inspect} @size=#{self.size}>"
       end      
 
-      ## destructive methods that would otherwise be delegated -- override if possible
+      ## destructive methods that we can implement here
+
+      def replace(val)
+        self.clobber(val)
+        self
+      end
+
+      def clear
+        self.replace([])
+      end     
+
+      ## destructive methods that would otherwise be delegated -- override if possible (these are in addition to a ny methods ending in ! or =, which are caught by method_missing)
 
       def delete(val)
         raise NotImplementedError
@@ -58,8 +72,32 @@ module ROC
       def <<(val)
         raise NotImplementedError
       end
+      
+      def fill(*args)
+        raise NotImplementedError
+      end
 
-      def []=(ind, val)
+      def insert(*args)
+        raise NotImplementedError
+      end
+
+      def keep_if
+        raise NotImplementedError
+      end
+
+      def push(*args)
+        raise NotImplementedError
+      end
+
+      def pop(*args)
+        raise NotImplementedError
+      end
+
+      def shift(*args)
+        raise NotImplementedError
+      end
+
+      def unshift(*args)
         raise NotImplementedError
       end
 

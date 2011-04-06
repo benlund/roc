@@ -123,9 +123,37 @@ class ListTest < ROCTest
 
   def test_mask
 
+    # implemented
+
     l = Store.init_list(random_key, ['1','2','1','2','1'])
     assert_equal '1', l.delete('1')
     assert_equal ['2','2'], l.values
+
+    assert_equal l, l.push('3', '3')
+    assert_equal ['2','2', '3', '3'], l.values
+
+    assert_equal '3', l.pop
+    assert_equal ['3'], l.pop(1)
+
+    assert_equal '2', l.shift
+    assert_equal ['2'], l.shift(1)
+
+    assert_equal l, l.unshift('a')
+    assert_equal l, l.unshift('b', 'c')
+    assert_equal ['b', 'c', 'a'], l.values
+
+    assert_equal l, l.replace(['x'])
+    assert_equal ['x'], l.values
+
+    assert_equal l, l.clear
+    assert_equal [], l.values
+
+
+    # left unimplemented
+
+    assert_raises NotImplementedError do
+      l.insert(0, 1)
+    end
 
     assert_raises NotImplementedError do
       l.delete_at(0)
@@ -134,7 +162,15 @@ class ListTest < ROCTest
     assert_raises NotImplementedError do
       l.delete_if{true}
     end
+      
+    assert_raises NotImplementedError do
+      l.fill([])
+    end
 
+    assert_raises NotImplementedError do
+      l.keep_if{true}
+    end
+    
   end
 
   def test_delegation

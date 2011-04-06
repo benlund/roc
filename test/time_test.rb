@@ -16,6 +16,21 @@ class TimeTest < ROCTest
     end
   end
 
+  def test_mask
+    raw_time = Time.now
+    t = Store.init_time(random_key, raw_time)
+
+    assert_equal raw_time.zone, t.zone
+
+    assert_equal raw_time.localtime, t.localtime
+    assert_equal raw_time.zone, t.zone
+    assert_equal raw_time.to_s, t.to_s
+
+    assert_equal raw_time.localtime("-08:00"), t.localtime("-08:00")
+    assert_equal raw_time.zone, t.zone
+    assert_equal raw_time.to_s, t.to_s
+  end
+
   def test_delegation
     t = Store.init_time(random_key)
     now = Time.now

@@ -44,21 +44,37 @@ class HashTest < ROCTest
   def test_shortcuts
     h = Store.init_hash(random_key)
     assert h.empty?
-    h.merge!({'count' => 4, 'foo' => 'bar'})
+
+    h['count'] = 4
+    h['foo'] = 'bar'
+    assert !h.empty?
+
     assert_equal ['4', 'bar'], h.values_at('count', 'foo')
     assert h.has_value?('bar')
     assert !h.has_value?('foo')
+  end
+
+  def test_mask
+
+    h = Store.init_hash(random_key)
+    assert_equal h, h.merge!({'count' => 4, 'foo' => 'bar'})
+
     assert_equal 'bar', h.delete('foo')
     assert_nil h.delete('foo')
+
+    assert_equal h, h.replace('bar' => 'baz')
+    assert_equal( {'bar' => 'baz'}, h.to_hash )
+
+    assert_equal h, h.clear
+    assert_equal( {}, h.to_hash )
+
     assert_raises NotImplementedError do
       h.shift
     end
     assert_raises NotImplementedError do
-      h.replace('bar' => 'baz')
-    end
-    assert_raises NotImplementedError do
       h.delete_if{true}
     end
+
   end
 
   def test_delegation

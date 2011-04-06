@@ -80,7 +80,6 @@ module ROC
       @encoding = enc
     end
 
-
     ## raise destructive methods if not implemted
 
     def insert(ind, val)
