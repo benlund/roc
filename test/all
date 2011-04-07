@@ -20,7 +20,9 @@ testable = [
             'hash',
             
             'key_operations',
-            'transactions'
+            'transactions',
+
+            'transient_store'
             ]
 
 to_test = testable & ARGV

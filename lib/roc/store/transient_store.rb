@@ -167,7 +167,7 @@ module ROC
 
       def type(key)
         if md = self.mdspace[key.to_s]
-          md[:type]
+          md[:type].dup
         else
           'none'
         end
@@ -178,14 +178,19 @@ module ROC
       def get(key)
         with_type(key, 'string') do
           expunge_if_expired(key)  
-          self.keyspace[key.to_s]
+          self.keyspace[key.to_s].dup
         end
       end
 
       def set(key, val)
         with_type(key, 'string') do
           expunge_if_expired(key)
-          self.keyspace[key.to_s] = val.to_s
+          v = if val.is_a?(::String)
+                val.dup
+              else
+                val.to_s
+              end
+          self.keyspace[key.to_s] = v
           self.persist(key)
           true
         end
@@ -287,7 +292,6 @@ module ROC
         current_val
       end
 
-
       def getrange(key, first_index, last_index)
         if self.exists(key)
           with_type(key, 'string') do
@@ -386,7 +390,12 @@ module ROC
           if !self.exists(key)
             self.keyspace[key.to_s] = []
           end
-          self.keyspace[key.to_s] << val.to_s
+          v = if val.is_a?(::String)
+                val.dup
+              else
+                val.to_s
+              end
+          self.keyspace[key.to_s] << v
           self.keyspace[key.to_s].size
         end
       end
@@ -404,7 +413,12 @@ module ROC
           if !self.exists(key)
             self.keyspace[key.to_s] = []
           end
-          self.keyspace[key.to_s].unshift( val.to_s )
+          v = if val.is_a?(::String)
+                val.dup
+              else
+                val.to_s
+              end
+          self.keyspace[key.to_s].unshift(v)
           self.keyspace[key.to_s].size
         end
       end
@@ -450,7 +464,7 @@ module ROC
           if !self.exists(key)
             nil
           else
-            self.keyspace[key.to_s][ind]
+            self.keyspace[key.to_s][ind].dup
           end
         end
       end
@@ -464,7 +478,12 @@ module ROC
           elsif ((ind < 0) && (ind < -arr.size)) || (ind >= arr.size)
             raise ArgumentError, "index out of range: #{ind}"
           else
-            self.keyspace[key.to_s][ind] = val.to_s
+            v = if val.is_a?(::String)
+                  val.dup
+                else
+                  val.to_s
+                end
+            self.keyspace[key.to_s][ind] = v
           end
         end
       end
@@ -537,7 +556,12 @@ module ROC
               if 'after' == where
                 ind +=1
               end
-              self.keyspace[key.to_s].insert(ind, val)
+              v = if val.is_a?(::String)
+                    val.dup
+                  else
+                    val.to_s
+                  end
+              self.keyspace[key.to_s].insert(ind, v)
               self.keyspace[key.to_s].size
             else
               -1
@@ -716,7 +740,7 @@ module ROC
 
       def zadd(key, score, val)
         with_type(key, 'zset') do
-          s = if score.is_a?(Fixnum)
+          s = if score.is_a?(Numeric)
                 score
               elsif score.is_a?(::String)
                 (score.index('.') ? score.to_f : score.to_i)
@@ -995,7 +1019,7 @@ module ROC
           expunge_if_expired(key)  
           hsh = self.keyspace[key.to_s]
           if !hsh.nil? && hsh.has_key?(field.to_s)
-            hsh[field.to_s]            
+            hsh[field.to_s].dup
           else
             nil
           end
@@ -1011,7 +1035,11 @@ module ROC
       def hset(key, field, val)
         with_type(key, 'hash') do
           f = field.to_s
-          v = val.to_s
+          v = if val.is_a?(::String)
+                val.dup
+              else
+                val.to_s
+              end
           if !self.exists(key)
             self.keyspace[key.to_s] = {}
           end
