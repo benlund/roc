@@ -178,7 +178,8 @@ module ROC
       def get(key)
         with_type(key, 'string') do
           expunge_if_expired(key)  
-          self.keyspace[key.to_s].dup
+          v = self.keyspace[key.to_s]
+          v.nil? ? nil : v.dup
         end
       end
 
@@ -464,7 +465,8 @@ module ROC
           if !self.exists(key)
             nil
           else
-            self.keyspace[key.to_s][ind].dup
+            v = self.keyspace[key.to_s][ind]
+            v.nil? ? nil : v.dup
           end
         end
       end
