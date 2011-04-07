@@ -2,9 +2,9 @@ require 'test/unit'
 
 require 'roc'
 
-Store = ROC::Store::TransientStore.new('transient_store_unit_test')
-
 class TransientStoreTest < Test::Unit::TestCase
+
+  Store = ROC::Store::TransientStore.new('transient_store_unit_test')
     
   def random_key
     ['TransientStoreTest', 'random', Time.now.to_f, Kernel.rand(500000)].join(':')
