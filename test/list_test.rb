@@ -46,6 +46,7 @@ class ListTest < ROCTest
 
     assert l.set(1, 'b')
     assert_equal 'b', l.index(1)
+    assert_nil l.index(2)
     assert_equal 2, l.size
     assert_equal ['a', 'b'], l.values
 
