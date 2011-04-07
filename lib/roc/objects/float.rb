@@ -19,6 +19,10 @@ module ROC
     def deserialize(val)
       if val.nil?
         nil
+      elsif 'Infinity' == val
+        1.0 / 0
+      elsif '-Infinity' == val
+        -1.0 / 0
       else
         val.to_f
       end

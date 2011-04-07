@@ -11,6 +11,13 @@ class FloatTest < ROCTest
     assert_equal 2.345, f.value
   end
 
+  def test_infinite
+    f = Store.init_float(random_key, (1.0 / 0))
+    assert_equal 1, f.infinite?
+    f.value = (-1.0 / 0)
+    assert_equal -1, f.infinite?
+  end
+
   def test_delegation
     f = Store.init_float(random_key)
     num = 2.345
