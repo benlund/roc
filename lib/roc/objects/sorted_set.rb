@@ -10,6 +10,7 @@ module ROC
     alias add zadd
 
     zero_arg_method :zcard
+    alias card zcard
 
     def zrange(start_index, stop_index, opts={})
       self.call :zrange, start_index, stop_index, opts
@@ -156,6 +157,7 @@ module ROC
       end
       hsh
     end
+    alias to_h to_hash
 
     ## implement (if posible) destructive methods that would otherwise raise
 

@@ -10,6 +10,7 @@ module ROC
     alias add sadd
 
     zero_arg_method :scard
+    alias card scard
 
     nonserializing_method :sismember
     alias ismember sismember
@@ -84,6 +85,7 @@ module ROC
       end
       hsh
     end
+    alias to_h to_hash
 
     ## implement (if posible) destructive methods that would otherwise raise
 

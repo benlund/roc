@@ -119,6 +119,7 @@ module ROC
     ## implementing for delegate
 
     alias to_hash getall
+    alias to_h getall
 
     def clobber(data)
       self.storage.multi do 

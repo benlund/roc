@@ -12,6 +12,7 @@ module ROC
     alias range lrange
 
     zero_arg_method :llen
+    alias len llen
 
     nonserializing_method :rpush
 
