@@ -18,8 +18,11 @@ Redis Object Collection: a collection of Ruby classes that wrap [Redis](http://r
     rocky_planets.add(3, 'Earth')
     rocky_planets.add(4, 'Mars')
     
-    # calling ZRANK key value
+    # calling ZSCORE key value
     rocky_planets.rank('Mars') #=> '4'
+    # calling ZRANK key value
+    rocky_planets.rank('Mars') #=> 3
+
 
     # array-like methods
     rocky_planets.include?('Earth') #=> true
