@@ -99,7 +99,7 @@ Wraps the Redis [set](http://redis.io/commands#set) data structure
 
 ROC::SortedSet
 
-Wraps the Redis [zset](http://redis.io/commands#zset) data structure
+Wraps the Redis [sorted set](http://redis.io/commands#sorted_set) data structure
 
 ROC::Hash
 
@@ -112,9 +112,9 @@ Wraps the Redis [hash](http://redis.io/commands#hash) data structure
 
 or
 
-   XXX.new(key, store, (initial_data)
+   ROC::Xxx.new(key, store, _initial_data_)
 
-You can start using the returned object wheter or not the underlying key exists in the Redis instance you're connected to.
+You can start using the returned object whether or not the underlying key exists in the Redis instance you're connected to.
 
 If the initial_data arg is given the appripriate Redis command for the type will be called immediately with that data (e.g. set for strings, multiple rpush calls for lists)
 
@@ -131,21 +131,19 @@ Sends the folowing to Redis:
 
     APPEND alphabet abcd
 
-In addition, all instances will respond to methods named after Redis commands that affect [all keys](http://redis.io/commands#keys). For example, to delete an object:
+In addition, all instances will respond to methods named after Redis commands that affect [all keys](http://redis.io/commands#generic). For example, to delete an object:
 
     str = Store.init_string('foo')
     str.set('bar')
     str.del
     str.value #=> nil
 
-Refer to the (Redis docs)[http://redis.io/commands] for a full list of methods available, with the following exceptions, which don't make sense in this context:
+Refer to the [Redis docs([http://redis.io/commands) for a full list of methods available.
 
-@@@
+Argument order is the same as for the equivalent Redis command, except that:
 
-The argument order is the same as for the equivalent Redis command, except that:
-
-  the key is not needed as the first arg - this is added in by the object, since it knows its own key
-  optional arguments are repesented as hashes (e.g.  zset.zrange(0, -1, :withscores => true) )
+ * the key is not needed as the first arg - this is added in by the object, since it knows its own key
+ * optional arguments are repesented as hashes (e.g.  zset.zrange(0, -1, :withscores => true) )
 
 All arguments are serialized to strings (this is done by the underlying Redis connection object) before being sent to Redis.
 
@@ -155,10 +153,10 @@ All arguments are serialized to strings (this is done by the underlying Redis co
 Command method are also aliases to more conveneient or short forms acording to the following principles:
 
  * the initial character that denotes the redis data type is removed, e.g. zset.add is the same as zset.zadd, set.add is the same as s.sadd
-   - expept where such a method name would be ambiguous, e.g. hash.hdel is NOT aliases to del, since this would conflict with the del method that all object implement
-   - except where such a name would be the same as a ruby method for an equivalent data type but the behavior is different, e.h. list.linsert in NOT aliases to l.insert, since Array#insert takes an index to insert at, whereas ROC::List#linsert takes a pivot value to insert before or after
+  - except where such a method name would be ambiguous, e.g. hash.hdel is NOT aliases to del, since this would conflict with the del method that all object implement
+  - except where such a name would be the same as a ruby method for an equivalent data type but the behavior is different, e.h. list.linsert in NOT aliases to l.insert, since Array#insert takes an index to insert at, whereas ROC::List#linsert takes a pivot value to insert before or after
 
-Methods are alias aliased to more Ruby-ish names -- e.g. str.value= is an alias for str.set, and list << val is an alias for list.rpush
+Methods are also aliased to more Ruby-ish names -- e.g. str.value= is an alias for str.set, and list << val is an alias for list.rpush
 
 scalar values: .value, .value=
 other types: .values, and the Redis commands
@@ -190,15 +188,17 @@ Most of these are simply delegated to the value retuned by to_a, to_s , etc
 
 So, it is not necessary to call the getter methods most of the time. E.g. roc_time_obj.to_i works and is exactly  equivalent to roc_time_obj.to_time.to_i
 
-Some of these methods are explicitly implemented as shortcuts though the Redis commands, when there is no need to fetch all the data from Redis, e.g. ROC::List#[] uses ROC::List#lrange or ROC::List#lrange if possible, and only fall back to fetching the entire array and delgating the call to it if @@@@
+Some of these methods are explicitly implemented as shortcuts though the Redis commands, when there is no need to fetch all the data from Redis, e.g. ROC::List#[] uses ROC::List#lrange or ROC::List#lrange as appropriate.  ROC::String#[] uses the redis commands where appropriate, but falls back to delegating to the full string for regular expression arguments.
 
 ### Destructive methods
 
-Destructive methods are implemented to show the same behavior as Ruby equivs where it is possible to implement this using Redis commands, otherwise they will NOT be delgated to the to_a, to_s, etc, but will raise a NotImeplemtedError instead.
+Destructive methods are implemented to show the same behavior as Ruby equivalents where it is possible to implement this using Redis commands, otherwise they will NOT be delgated to the to_a, to_s, etc, but will raise a NotImeplemtedError instead.
 
 e.g.  list.rem vs list.delete
 
-For a full list of additional methods implemented by the ROC classes, see the rdoc. @@
+@@todo
+
+For a full list of additional methods implemented by the ROC classes, see the rdoc.
 
 
 ## Stores
@@ -237,7 +237,7 @@ To wrap multiple calls in a transaction use multi/exec/watch/discard (see Redis 
 
 The ROC::Types::ScalarTypes module can be used to easily implement other datatype that serialize to Redis Strings
 
-@@ need to implemt the following methods, e.g here is the full implemtation of a hypothetical ROC::@@ class
+@@todo need to implemt the following methods, e.g here is the full implemtation of a hypothetical ROC::@@ class
 
 
 ## Comparison with other Redis libraries
