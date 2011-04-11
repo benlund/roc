@@ -5,7 +5,7 @@ require 'roc'
 Store = if ENV['ROC_STORE'].nil?
           raise "no ROC_STORE given"
         elsif ENV['ROC_STORE'] =~ /redis:/
-          ROC::Store::RedisStore.new(Redis.connect(:url => ENV['ROC_STORE']))
+          ROC::Store::RedisStore.new(:url => ENV['ROC_STORE'])
         else
           ROC::Store::TransientStore.new(ENV['ROC_STORE'])
         end

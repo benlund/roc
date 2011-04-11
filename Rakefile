@@ -9,7 +9,7 @@ end
 def publish_local
   dir = '~/Development/Gems/'
   `cp roc-*.gem #{dir}/gems/`
-  `gem generate_index --modern -d #{dir}`
+  `gem generate_index --update --modern -d #{dir}`
 end
 
 def publish_remote

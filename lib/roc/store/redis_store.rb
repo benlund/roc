@@ -16,7 +16,11 @@ module ROC
       attr_reader :connection
 
       def initialize(connection)
-        @connection = connection
+        if connection.is_a?(Redis)
+          @connection = connection
+        else
+          @connection = Redis.connect(connection)
+        end
       end
 
       def call(method_name, *args)
