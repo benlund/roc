@@ -163,15 +163,21 @@ other types: .values, and the Redis commands
 
 Classes also implement expicit methods to create Ruby-core equivalent objects.
 
-ROC::String - to_s
-ROC::Integer - to_i
-ROC::Float - to_f
-ROC::Time - to_time
+ROC::String#to_s
 
-ROC::List - to_a
-ROC::Set - to_a, to_hash
-ROC::SortedSet - to_a, to_hash
-ROC::Hash - to_hash
+ROC::Integer#to_i
+
+ROC::Float#to_f
+
+ROC::Time#to_time
+
+ROC::List#to_a
+
+ROC::Set#to_a, ROC::Set#to_hash
+
+ROC::SortedSet#to_a, ROC::SortedSet#to_hash
+
+ROC::Hash#to_hash
 
 
 ## Delegation, Shortcuts and Masking
@@ -244,7 +250,7 @@ The ROC::Types::ScalarTypes module can be used to easily implement other datatyp
 
 https://github.com/nateware/redis-objects
 
-Ruby-ish wrappers for Redis data structures, very similar to ROC.  Also includes support for adding proprties to models. No support for transient Storage, and a less explicit separation between redis command methods and delgated or shortcut methods to mimic core Ruby objects.
+Ruby-ish wrappers for Redis data structures, very similar to ROC.  Also includes support for adding proprties to models. No support for transient storage, and a less explicit separation between redis command methods and delgated or shortcut methods to mimic core Ruby objects.
 
 
 https://github.com/grosser/redis-objective

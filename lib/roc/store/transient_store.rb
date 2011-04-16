@@ -1130,7 +1130,12 @@ module ROC
           @multi_mode = true
           @multi_calls = []
           if block_given?
-            yield
+            begin
+              yield
+            rescue Exception => e
+              self.discard
+              raise e
+            end
             self.exec
           end
         end
