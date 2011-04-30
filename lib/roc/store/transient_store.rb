@@ -790,7 +790,7 @@ module ROC
               end
               ret
             else
-              val[:list][start_index..stop_index]
+              val[:list][start_index..stop_index] || [] ## never return nil -- happens if start_index is neg and before begining of list
             end
           end
         end

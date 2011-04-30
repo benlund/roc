@@ -96,6 +96,15 @@ class ListTest < ROCTest
     assert_equal ['a', 'b', 'x', 'c'], l.values
     assert_equal 0, new_l.insert_before(1, 1)
 
+    ## empty it
+
+    l.pop
+    l.pop
+    l.pop
+    l.pop
+
+    assert_nil l.last
+
   end
 
   def test_shortcuts

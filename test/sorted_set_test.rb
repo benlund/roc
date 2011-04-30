@@ -159,6 +159,14 @@ class SortedSetTest < ROCTest
     is.set_as_intersect_of(s, os, yos)
     assert_equal ['w', '15'], is.values(:with_scores => true)
 
+
+    ## empty it - check for regression
+
+    s.rem('a')
+    s.rem('y')
+    s.rem('w')
+    assert_nil s.last
+
   end
 
   def test_shortcuts
