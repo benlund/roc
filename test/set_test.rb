@@ -92,9 +92,6 @@ class SetTest < ROCTest
     u_set.rem('y')
     u_set.rem('z')
 
-    ## regression test
-    assert_nil u_set.last
-
     #sort numbers
 
     u_set << '1.1'

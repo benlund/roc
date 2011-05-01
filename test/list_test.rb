@@ -112,6 +112,7 @@ class ListTest < ROCTest
 
     ## regression test
     assert_nil l.last
+    assert_equal [], l.range(-1, 0)
 
     #sort numbers
 

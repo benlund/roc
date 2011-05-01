@@ -414,7 +414,7 @@ module ROC
           if val.nil? || (start_index >= val.size) || ( (start_index < 0) && (stop_index < start_index) )
             []
           else
-            val[start_index..stop_index]
+            val[start_index..stop_index] || [] ## never return nil -- happens if start_index is neg and before begining of list
           end
         end
       end

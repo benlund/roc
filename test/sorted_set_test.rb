@@ -172,6 +172,7 @@ class SortedSetTest < ROCTest
     s.rem('y')
     s.rem('w')
     assert_nil s.last
+    assert_equal [],  s.range(-1, 0)
 
     #sort numbers
 
