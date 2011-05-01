@@ -215,10 +215,8 @@ class ListTest < ROCTest
   end
 
   def test_stringification
-    l = Store.init_set(random_key)
+    l = Store.init_list(random_key)
     l << 14
-    assert l.include?('14')
-    assert l.include?(14)
     assert_equal ['14'], l.values
     assert l.delete(14)
     assert_equal( [], l.to_a )

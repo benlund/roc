@@ -549,8 +549,9 @@ module ROC
               reverse = true
             end
             indexes_to_del = []
+            v = val.to_s
             iterator.each_with_index do |test, i|
-              if test == val
+              if test == v
                 if reverse
                   indexes_to_del.unshift iterator.size - (i + 1)
                 else

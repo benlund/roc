@@ -308,13 +308,3 @@ class SortedSetTest < ROCTest
   end
 
 end
-
-
-## @@ list and set test delegation not finished
-## @@ stack level too deep happens when method missing called with unimplemented method on delegate
-
-## not all methids iplemented in sorted_set (others?)
-
-## sorted_set union etc need aggreaagte and weight options
-
-## check set_as_union_of difference between set and sorted set
