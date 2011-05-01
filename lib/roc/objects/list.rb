@@ -1,9 +1,11 @@
 require 'roc/objects/base'
 require 'roc/types/array_type'
+require 'roc/types/sortable_type'
 
 module ROC
   class List < Base
     include ROC::Types::ArrayType
+    include ROC::Types::SortableType
     extend ROC::Types::MethodGenerators   
 
     def lrange(start_index, stop_index)
@@ -63,6 +65,7 @@ module ROC
       self.linsert('after', pivot, value)
     end
     alias insert_after linsert_after
+
 
     ## shortcut methods
 

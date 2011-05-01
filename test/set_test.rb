@@ -77,6 +77,38 @@ class SetTest < ROCTest
     assert_equal ['y'], i_set.values.sort
     assert_equal ['w'], d1_set.values.sort
     assert_equal ['z'], d2_set.values.sort
+
+
+    ## sort
+
+    assert_equal ['w', 'y', 'z'], u_set.sort(:order => 'alpha')
+    assert_equal ['z', 'y', 'w'], u_set.sort(:order => 'alpha desc')
+    assert_equal ['z', 'y'], u_set.sort(:order => 'alpha desc', :limit => [0, 2])
+    
+
+    ## empty it
+
+    u_set.rem('w')
+    u_set.rem('y')
+    u_set.rem('z')
+
+    ## regression test
+    assert_nil u_set.last
+
+    #sort numbers
+
+    u_set << '1.1'
+    u_set << '0.2'
+    u_set << '47'
+
+    assert_equal ['0.2', '1.1', '47'], u_set.sort
+    assert_equal ['47', '1.1', '0.2'], u_set.sort(:order => 'desc')
+
+    sl = Store.init_list(random_key)
+
+    u_set.sort(:store => sl)
+    assert_equal ['0.2', '1.1', '47'], sl.values
+
   end
 
   def test_mask

@@ -1,9 +1,11 @@
 require 'roc/objects/base'
 require 'roc/types/array_type'
+require 'roc/types/sortable_type'
 
 module ROC
   class Set < Base
     include ROC::Types::ArrayType
+    include ROC::Types::SortableType
     extend ROC::Types::MethodGenerators   
 
     nonserializing_method :sadd

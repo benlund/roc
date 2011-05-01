@@ -159,6 +159,12 @@ class SortedSetTest < ROCTest
     is.set_as_intersect_of(s, os, yos)
     assert_equal ['w', '15'], is.values(:with_scores => true)
 
+    ## sort
+    
+    assert_equal ['a', 'w', 'y'], s.sort(:order => 'alpha')
+    assert_equal ['y', 'w', 'a'], s.sort(:order => 'alpha desc')
+    assert_equal ['y', 'w'], s.sort(:order => 'alpha desc', :limit => [0, 2])
+    
 
     ## empty it - check for regression
 
@@ -166,6 +172,20 @@ class SortedSetTest < ROCTest
     s.rem('y')
     s.rem('w')
     assert_nil s.last
+
+    #sort numbers
+
+    s << [0, '1.1']
+    s << [0, '0.2']
+    s << [0, '47']
+
+    assert_equal ['0.2', '1.1', '47'], s.sort
+    assert_equal ['47', '1.1', '0.2'], s.sort(:order => 'desc')
+
+    sl = Store.init_list(random_key)
+
+    s.sort(:store => sl)
+    assert_equal ['0.2', '1.1', '47'], sl.values
 
   end
 

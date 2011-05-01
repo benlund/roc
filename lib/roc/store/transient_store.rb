@@ -151,8 +151,53 @@ module ROC
         end
       end
 
-      def sort(*args)
-        raise NotImplementedError
+      def sort(key, opts={})
+        raise ":by not yet supported" if opts.has_key?(:by)
+        raise ":get not yet supported" if opts.has_key?(:by)
+
+        limit = opts[:limit]
+        order = (opts[:order] || '').split(' ')
+        store = opts[:store]
+        
+        md = self.mdspace[key.to_s]
+
+        vals = if md.nil?
+                 []
+               elsif 'list' == md[:type]
+                 self.lrange(key, 0, -1)
+               elsif 'set' == md[:type]
+                 self.smembers(key)
+               elsif 'zset' == md[:type]
+                 self.zrange(key, 0, -1)
+               else
+                 raise TypeError, 'list, set or zset required'
+               end
+        
+        sorter = if order.include?('alpha')
+                   if order.include?('desc')
+                     lambda{|a, b| b <=> a}
+                   else
+                     lambda{|a, b| a <=> b}
+                   end
+                 elsif order.include?('desc')
+                   lambda{|a, b| b.to_f <=> a.to_f}
+                 else
+                   lambda{|a, b| a.to_f <=> b.to_f}
+                 end
+
+        vals.sort!{|a, b| sorter.call(a, b)}
+        
+        if limit
+          vals = vals[*limit]
+        end
+
+        if store
+          with_type(store, 'list') do
+            self.keyspace[store.to_s] = vals
+          end
+        end
+
+        vals
       end
 
       def ttl(key)

@@ -96,6 +96,13 @@ class ListTest < ROCTest
     assert_equal ['a', 'b', 'x', 'c'], l.values
     assert_equal 0, new_l.insert_before(1, 1)
 
+    ## sort
+
+    assert_equal ['a', 'b', 'c', 'x'], l.sort(:order => 'alpha')
+    assert_equal ['x', 'c', 'b', 'a'], l.sort(:order => 'alpha desc')
+    assert_equal ['x', 'c'], l.sort(:order => 'alpha desc', :limit => [0, 2])
+    
+
     ## empty it
 
     l.pop
@@ -103,8 +110,22 @@ class ListTest < ROCTest
     l.pop
     l.pop
 
+    ## regression test
     assert_nil l.last
 
+    #sort numbers
+
+    l << '1.1'
+    l << '0.2'
+    l << '47'
+
+    assert_equal ['0.2', '1.1', '47'], l.sort
+    assert_equal ['47', '1.1', '0.2'], l.sort(:order => 'desc')
+
+    sl = Store.init_list(random_key)
+
+    l.sort(:store => sl)
+    assert_equal ['0.2', '1.1', '47'], sl.values
   end
 
   def test_shortcuts
