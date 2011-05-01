@@ -126,6 +126,8 @@ class ListTest < ROCTest
 
     l.sort(:store => sl)
     assert_equal ['0.2', '1.1', '47'], sl.values
+    sl.sort!(:order => 'desc')
+    assert_equal ['47', '1.1', '0.2'], sl.values
   end
 
   def test_shortcuts

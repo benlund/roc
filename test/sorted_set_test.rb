@@ -186,7 +186,6 @@ class SortedSetTest < ROCTest
 
     s.sort(:store => sl)
     assert_equal ['0.2', '1.1', '47'], sl.values
-
   end
 
   def test_shortcuts

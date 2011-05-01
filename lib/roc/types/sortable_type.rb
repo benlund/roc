@@ -22,6 +22,11 @@ module ROC
         self.call :sort, {:store => store, :limit => opts[:limit], :order => opts[:order]}
       end
 
+      def sort!(opts={})
+        raise ":store is self in sort!" if opts.has_key?(:store)
+        self.sort({:store => self.key}.merge(opts.dup))
+      end
+
     end
   end
 end
