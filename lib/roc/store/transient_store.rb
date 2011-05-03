@@ -9,20 +9,29 @@ module ROC
 
       attr_reader :name
 
-      def initialize(name)
-        @name = name.to_s
-        TransientStore::KEYSPACES[@name] ||= {}
-        TransientStore::MDSPACES[@name] ||= {}
+      def initialize(name=nil)
+        if name.nil?
+          @keyspace = {}
+          @mdspace = {}
+        else
+          @name = name.to_s
+          TransientStore::KEYSPACES[@name] ||= {}
+          TransientStore::MDSPACES[@name] ||= {}
+        end
+      end
+
+      def shared?
+        !@name.nil?
       end
 
       protected
 
       def keyspace
-        TransientStore::KEYSPACES[self.name]
+        @keyspace || TransientStore::KEYSPACES[self.name]
       end
 
       def mdspace
-        TransientStore::MDSPACES[self.name]
+        @mdspace || TransientStore::MDSPACES[self.name]
       end
 
       def expunge_if_expired(key)
@@ -1224,8 +1233,13 @@ module ROC
       end
 
       def flushdb
-        TransientStore::KEYSPACES[self.name] = {}
-        TransientStore::MDSPACES[self.name]  ={}
+        if self.shared?
+          TransientStore::KEYSPACES[self.name] = {}
+          TransientStore::MDSPACES[self.name]  ={}
+        else
+          @keyspace = {}
+          @mdspace = {}
+        end
       end
 
       # non-public helpers for redis methods

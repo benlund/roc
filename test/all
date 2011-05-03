@@ -1,6 +1,10 @@
 #!/usr/bin/env ruby
 
-ENV['ROC_STORE'] ||= 'test'
+## isolated transient store
+ENV['ROC_STORE'] ||= nil
+## shared transient store
+#ENV['ROC_STORE'] ||= 'test'
+## redis
 #ENV['ROC_STORE'] ||= 'redis://127.0.0.1/1'
 
 if ARGV.delete('gem')

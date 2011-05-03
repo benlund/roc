@@ -111,4 +111,22 @@ class TransientStoreTest < Test::Unit::TestCase
 
   end
 
+  def test_isolated
+    store1 = ROC::Store::TransientStore.new
+    store2 = ROC::Store::TransientStore.new
+
+    store1.set 'hi', 'ben'
+    assert_nil(store2.get 'hi')
+  end
+
+  def test_shared
+
+    store1 = ROC::Store::TransientStore.new('transient_store_unit_shared_test')
+    store2 = ROC::Store::TransientStore.new('transient_store_unit_shared_test')
+
+    store1.set 'hi', 'ben'
+    assert_equal 'ben', (store2.get 'hi')
+
+  end
+
 end
