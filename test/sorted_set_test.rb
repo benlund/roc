@@ -38,6 +38,9 @@ class SortedSetTest < ROCTest
     #range and revrange
     assert_equal ['a', 'w'], s.range(1, 2)
     assert_equal ['z', 'a', 'w'], s.range(0, -2)
+    assert_equal ['w', 'y'], s.range(-2, -1)
+    assert_equal ['z', 'a', 'w', 'y'], s.range(-4, -1)
+    assert_equal ['z', 'a', 'w', 'y'], s.range(-5, -1)
     assert_equal ['w', 'a'], s.revrange(1, 2)
     assert_equal ['y', 'w', 'a', 'z'], s.revrange(0, -1)
 

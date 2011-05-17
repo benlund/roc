@@ -837,6 +837,10 @@ module ROC
           if val.nil? || (start_index >= val[:list].size) || ( (start_index < 0) && (stop_index < start_index) )
             []
           else
+            ## emulate redis -- a neg start index before beginning meams the beginning
+            if (start_index < 0) && (-start_index > val[:list].size)
+              start_index = 0
+            end
             if opts[:with_scores] || opts[:withscores]
               ret = []
               val[:list][start_index..stop_index].each do |v|
@@ -845,7 +849,7 @@ module ROC
               end
               ret
             else
-              val[:list][start_index..stop_index] || [] ## never return nil -- happens if start_index is neg and before begining of list
+              val[:list][start_index..stop_index] || [] ## never return nil
             end
           end
         end
