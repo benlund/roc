@@ -33,6 +33,10 @@ module ROC
         "<#{self.class} @connection=#{self.connection.inspect}>"
       end
 
+      def enable_eval
+        require 'roc/store/redis_eval'
+      end
+
     end
   end
 end

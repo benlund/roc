@@ -55,7 +55,6 @@ module ROC
       end
     end
 
-
     protected
 
     def call(remote_method_name, *args)

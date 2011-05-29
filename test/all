@@ -1,11 +1,11 @@
 #!/usr/bin/env ruby
 
 ## isolated transient store
-ENV['ROC_STORE'] ||= nil
+#ENV['ROC_STORE'] ||= nil
 ## shared transient store
 #ENV['ROC_STORE'] ||= 'test'
 ## redis
-#ENV['ROC_STORE'] ||= 'redis://127.0.0.1/1'
+ENV['ROC_STORE'] ||= 'redis://127.0.0.1/1'
 
 if ARGV.delete('gem')
   if RUBY_VERSION.match(/^1\.8/)
@@ -30,7 +30,9 @@ testable = [
             'key_operations',
             'transactions',
 
-            'transient_store'
+            'transient_store',
+
+            'eval'
             ]
 
 to_test = testable & ARGV

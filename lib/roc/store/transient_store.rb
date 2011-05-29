@@ -160,9 +160,11 @@ module ROC
         end
       end
 
-      def sort(key, opts={})
+      def sort(key, *args)
+        opts = parse_sort_args(args)
+
         raise ":by not yet supported" if opts.has_key?(:by)
-        raise ":get not yet supported" if opts.has_key?(:by)
+        raise ":get not yet supported" if opts.has_key?(:get)
 
         limit = opts[:limit]
         order = (opts[:order] || '').split(' ')
@@ -604,7 +606,7 @@ module ROC
       end
 
       def linsert(key, where, pivot, val)
-        if !['before', 'after'].include?(where.downcase)
+        if !['before', 'after'].include?(where.to_s.downcase)
           raise ArgumentError "BEFORE or AFTER please"
         else
           if self.exists(key)
@@ -830,7 +832,9 @@ module ROC
         end
       end
 
-      def zrange(key, start_index, stop_index, opts={})
+      def zrange(key, start_index, stop_index, opts=nil)
+        opts = parse_zrange_arg(opts)
+
         with_type(key, 'zset') do
           expunge_if_expired(key)  
           val = self.keyspace[key.to_s]
@@ -855,7 +859,9 @@ module ROC
         end
       end
 
-      def zrevrange(key, start_index, stop_index, opts={})
+      def zrevrange(key, start_index, stop_index, opts=nil)
+        opts = parse_zrange_arg(opts)
+
         with_type(key, 'zset') do
           expunge_if_expired(key)  
           val = self.keyspace[key.to_s]
@@ -877,7 +883,9 @@ module ROC
         end
       end
 
-      def zrangebyscore(key, min, max, opts={})
+      def zrangebyscore(key, min, max, *opts)
+        opts = parse_zscore_args(opts)
+
         with_type(key, 'zset') do
           expunge_if_expired(key)  
           val = self.keyspace[key.to_s]
@@ -930,7 +938,9 @@ module ROC
         end
       end
 
-      def zrevrangebyscore(key, max, min, opts={})
+      def zrevrangebyscore(key, max, min, *opts)
+        opts = parse_zscore_args(opts)
+
         limit = opts.delete(:limit)
         ret = self.zrangebyscore(key, min, max, opts).reverse
         if limit
@@ -1032,7 +1042,10 @@ module ROC
         end        
       end
 
-      def zunionstore(key, other_keys, opts)
+      ## craziness here is to support both the Ruby Redis gem args style and the raw redis args styl
+      def zunionstore(key, *args)
+        other_keys, opts = parse_zop_args(args)
+
         raise ArgumentError, 'zunionstore needs at least one key' unless other_keys.size > 0
         raise ArgumentError, 'mismatch weights count' unless (!opts.has_key?(:weights) || (opts[:weights].size == other_keys.size))
         with_type(key, 'zset') do
@@ -1053,7 +1066,9 @@ module ROC
         end
       end
 
-      def zinterstore(key, other_keys, opts)
+      def zinterstore(key, *args)
+        other_keys, opts = parse_zop_args(args)
+
         raise ArgumentError, 'zinterstore needs at least one key' unless other_keys.size > 0
         with_type(key, 'zset') do
           sorted_sets = other_keys.map{|k| self.keyspace[k.to_s]}.compact
@@ -1249,6 +1264,89 @@ module ROC
       # non-public helpers for redis methods
       protected
 
+      def parse_sort_args(args)
+        if args.size == 1 && args[0].is_a?(::Hash)
+          return args[0]
+        end
+        opts = {}
+        while arg = args.shift
+          if 'by' == arg.to_s.downcase
+            opts[:by] = args.shift
+          elsif 'limit' == arg.to_s.downcase
+            opts[:limit] = [args.shift, args.shift]
+          elsif 'get' == arg.to_s.downcase
+            opts[:get] ||= []
+            opts[:get] << args.shift
+          elsif 'store' == arg.to_s.downcase
+            opts[:store] = args.shift
+          end
+        end
+        if args.size > 0
+          opts[:order] = args.join(' ')
+        end
+        opts
+      end
+      
+      def parse_zscore_args(opts)
+        if 0 == opts.size
+          {}
+        elsif (opts.size > 1) || !opts[0].is_a?(::Hash)
+          parsed_opts = {}
+          while o = opts.shift
+            if 'withscores' == o.to_s.downcase
+              parsed_opts[:withscores] = true
+            elsif 'withscores' == o.to_s.downcase
+              parsed_opts[:limit] = [opts.shift.to_i, opts.shift.to_i]
+            end
+          end
+          parsed_opts
+        else
+          opts[0]
+        end
+      end
+
+      def parse_zrange_arg(opts)
+        if opts.nil?
+          {}
+        elsif opts.is_a?(::Hash)
+          opts
+        elsif ('withscores' == opts.to_s.downcase)
+          {:withscores => true}
+        else
+          {}
+        end
+      end
+
+      def parse_zop_args(args)
+        other_keys = []
+        opts = {}
+
+        if args[0].is_a?(::Array)
+          other_keys = args.shift
+        elsif args[0].is_a?(::Numeric)
+          num_keys = args.shift
+          1.upto(num_keys)
+          other_keys << args.shift          
+        end
+
+        if (args.size == 1) && args[0].is_a?(::Hash)
+          opts = args[0]
+        else
+          while arg = args.shift
+            if 'weight' == arg.to_s.downcase
+              opts[:weights] = []
+            elsif 'aggregate' == arg.to_s.downcase
+              opts[:aggregate] = nil
+            elsif opts.has_key?(:weights)
+              opts[:weights] << arg.to_i
+            elsif opts.has_key?(:aggregate)
+              opts[:aggregate] = arg.to_s.downcase
+            end
+          end
+        end
+        [other_keys, opts]
+      end
+
       def resort(key)
         self.keyspace[key.to_s][:list] = do_sort(self.keyspace[key.to_s][:map])
       end
@@ -1278,7 +1376,7 @@ module ROC
           a_score = a[:map].has_key?(k) && (a[:map][k] * weight_a)
           b_score = b[:map].has_key?(k) && (b[:map][k] * weight_b)
           r[:map][k] = if a_score && b_score
-                         case aggregate.downcase
+                         case aggregate.to_s.downcase
                          when 'sum'
                            a_score + b_score
                          when 'min'
@@ -1307,6 +1405,13 @@ module ROC
 
       def inspect
         "<#{self.class} @name=#{self.name.inspect}>"
+      end
+
+      def enable_eval
+        require 'roc/store/transient_eval'
+        if !self.class.include?(ROC::Store::TransientEval)          
+          self.class.send(:include, ROC::Store::TransientEval)
+        end
       end
 
     end
