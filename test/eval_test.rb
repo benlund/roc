@@ -8,12 +8,11 @@ class EvalTest < ROCTest
 
     k = random_key
 
-    assert_nil (Store.call :eval, "return redis('get', '#{k}')", 0)
+    assert_nil (Store.call :eval, "return redis.call('get', '#{k}')", 0)
     Store.call :set, k, 'in now'
-    assert_equal 'in now', (Store.call :eval, "return redis('get', '#{k}')", 0)
+    assert_equal 'in now', (Store.call :eval, "return redis.call('get', '#{k}')", 0)
 
-    assert_equal 'in now', (Store.call :eval, "return redis('get', KEYS[1])", 1, k)
-
+    assert_equal 'in now', (Store.call :eval, "return redis.call('get', KEYS[1])", 1, k)
   end
 
   def test_data_types
@@ -26,12 +25,12 @@ class EvalTest < ROCTest
 
     Store.enable_eval
 
-    assert_equal str.value, Store.call(:eval, "return redis('get', KEYS[1])", 1, str.key)
-    assert_equal lst.values, Store.call(:eval, "return redis('lrange', KEYS[1], 0, -1)", 1, lst.key)
-    assert_equal s.values.sort, Store.call(:eval, "return redis('smembers', KEYS[1])", 1, s.key).sort
-    assert_equal ss.values, Store.call(:eval, "return redis('zrange', KEYS[1], 0, -1)", 1, ss.key)
-    assert_equal ss.values(:with_scores => true), Store.call(:eval, "return redis('zrange', KEYS[1], 0, -1, 'WITHSCORES')", 1, ss.key)
-    assert_equal hsh.hmget('foo', 'bar'), Store.call(:eval, "return redis('hmget', KEYS[1], ARGV[1], ARGV[2])", 1, hsh.key, 'foo', 'bar')
+    assert_equal str.value, Store.call(:eval, "return redis.call('get', KEYS[1])", 1, str.key)
+    assert_equal lst.values, Store.call(:eval, "return redis.call('lrange', KEYS[1], 0, -1)", 1, lst.key)
+    assert_equal s.values.sort, Store.call(:eval, "return redis.call('smembers', KEYS[1])", 1, s.key).sort
+    assert_equal ss.values, Store.call(:eval, "return redis.call('zrange', KEYS[1], 0, -1)", 1, ss.key)
+    assert_equal ss.values(:with_scores => true), Store.call(:eval, "return redis.call('zrange', KEYS[1], 0, -1, 'WITHSCORES')", 1, ss.key)
+    assert_equal hsh.hmget('foo', 'bar'), Store.call(:eval, "return redis.call('hmget', KEYS[1], ARGV[1], ARGV[2])", 1, hsh.key, 'foo', 'bar')
 
   end
 
