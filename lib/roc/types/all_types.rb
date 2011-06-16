@@ -21,6 +21,19 @@ module ROC
 
       zero_arg_method :persist
       
+      def eval(script, *args)
+        keys = [self.key]
+        argv = []
+        args.each do |a|
+          if a.is_a?(ROC::Base)
+            keys << a.key
+          else
+            argv << a
+          end
+        end
+        self.storage.call :eval, script, keys.size, *keys, *argv
+      end
+
     end
   end
 end

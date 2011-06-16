@@ -1396,12 +1396,13 @@ module ROC
         r
       end
 
-      public
       ## end of redis methods
 
       def method_missing(*args)
         puts "unimplemented: #{args}"
       end
+
+      public
 
       def inspect
         "<#{self.class} @name=#{self.name.inspect}>"

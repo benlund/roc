@@ -25,12 +25,12 @@ class EvalTest < ROCTest
 
     Store.enable_eval
 
-    assert_equal str.value, Store.call(:eval, "return redis.call('get', KEYS[1])", 1, str.key)
-    assert_equal lst.values, Store.call(:eval, "return redis.call('lrange', KEYS[1], 0, -1)", 1, lst.key)
-    assert_equal s.values.sort, Store.call(:eval, "return redis.call('smembers', KEYS[1])", 1, s.key).sort
-    assert_equal ss.values, Store.call(:eval, "return redis.call('zrange', KEYS[1], 0, -1)", 1, ss.key)
-    assert_equal ss.values(:with_scores => true), Store.call(:eval, "return redis.call('zrange', KEYS[1], 0, -1, 'WITHSCORES')", 1, ss.key)
-    assert_equal hsh.hmget('foo', 'bar'), Store.call(:eval, "return redis.call('hmget', KEYS[1], ARGV[1], ARGV[2])", 1, hsh.key, 'foo', 'bar')
+    assert_equal str.value, str.eval("return redis.call('get', KEYS[1])")
+    assert_equal lst.values, lst.eval("return redis.call('lrange', KEYS[1], 0, -1)")
+    assert_equal s.values.sort, s.eval("return redis.call('smembers', KEYS[1])").sort
+    assert_equal ss.values, ss.eval("return redis.call('zrange', KEYS[1], 0, -1)")
+    assert_equal ss.values(:with_scores => true), ss.eval("return redis.call('zrange', KEYS[1], 0, -1, 'WITHSCORES')")
+    assert_equal hsh.hmget('foo', 'bar'), hsh.eval("return redis.call('hmget', KEYS[1], ARGV[1], ARGV[2])", 'foo', 'bar')
 
   end
 
