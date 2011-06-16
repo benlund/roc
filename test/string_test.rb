@@ -45,7 +45,7 @@ class StringTest < ROCTest
     str << 'c'
     assert_equal 'inside', str.substring(2, 7)
     assert_equal 'ec', str.substring(-2, -1)
-    assert_nil str.substring(100, 101)
+    assert_equal '', str.substring(100, 101) ## changed from returning nil in Redis 2.2.2
     str.splice(2, 'up')
     assert_equal 'abupsidec', str.value
     str.splice(10, 'x')

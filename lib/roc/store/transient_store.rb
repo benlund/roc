@@ -1,7 +1,8 @@
+require 'roc/store/roc_store'
 require 'roc/store/object_initializers'
 module ROC
   module Store
-    class TransientStore
+    class TransientStore < ROCStore
       include ObjectInitializers
 
       KEYSPACES = {}
@@ -356,7 +357,7 @@ module ROC
             if arr
               arr.map{|c| c.chr}.join('')
             else
-              nil
+              ''
             end
           end
         else

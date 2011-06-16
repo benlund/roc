@@ -1,24 +1,40 @@
+if RUBY_VERSION.match(/^1\.8/)
+  require 'rubygems'
+end
+require 'cim_attributes'
+
 require 'roc/types/all_types'
 
 module ROC
   class Base
     include ROC::Types::AllTypes
+    include CIMAttributes
 
-    attr_reader :storage, :key, :options
+    attr_reader :key, :options
 
-    def initialize(storage, key, *args)
-      @storage = storage
+    cim_attr_accessor :storage
+
+    # key, [storage], [seed_data], [opts]
+    def initialize(key, *args)
       @key = key
 
       if args.last.is_a?(Hash)
         @options = args.pop
       end
 
-      if args.size > 1
-        raise ArgumentError, 'new(storage, key, [seed_data], [opts])'
+      if args.first.is_a?(ROC::Store::ROCStore)
+        @storage = args.shift
       end
 
-      if !(seed_data = args[0]).nil?
+      if !self.storage
+        raise ArgumentError, 'no class-level storage set, so must initialize with a Store'
+      end
+
+      if args.size > 1
+        raise ArgumentError, 'new(key, [storage], [seed_data], [opts])'
+      end
+
+      if !(seed_data = args.pop).nil?
         seed(seed_data)
       end
     end

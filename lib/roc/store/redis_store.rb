@@ -3,13 +3,14 @@ if RUBY_VERSION.match(/^1\.8/)
 end
 require 'redis'
 require 'roc/ext/redis_ext'
+require 'roc/store/roc_store'
 require 'roc/store/object_initializers'
 
 require 'forwardable'
 
 module ROC
   module Store
-    class RedisStore
+    class RedisStore < ROCStore
       include ObjectInitializers
       extend Forwardable
 

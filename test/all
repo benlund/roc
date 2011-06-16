@@ -32,7 +32,8 @@ testable = [
 
             'transient_store',
 
-            'eval'
+            'eval',
+            'initialization'
             ]
 
 to_test = testable & ARGV
