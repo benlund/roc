@@ -2,7 +2,7 @@
 
 Redis Object Collection: a collection of Ruby classes that wrap [Redis](http://redis.io) data structures.
 
-ROC also includes a pure-Ruby in-memory implemtation of the Redis commands and data strucures to allow you to use the ROC clases without persistence.
+ROC also includes a pure-Ruby in-memory implementation of the Redis commands and data structures to allow you to use the ROC clases without persistence.
 
 
 ## Summary
@@ -80,11 +80,11 @@ See test/*.rb for many more examples
 
 ## Features
 
- * Global, class-specific or instance-specific storage for ROC objects. This means it's easy to use multiple redis backends. (See Creating instances below)
+ * Global, class-specific or instance-specific storage for ROC objects. This means it's easy to use multiple redis backends. (See Creating Instances below)
 
- * A full Ruby in-memory implementaion of the raw redis data strctures and commands. This allows you to use the ROC classes without an underlying redis connection.  For example, this is useful for re-using logic that operates on ROC objects with temporary data that doesn't need persistence. (See ROC::Store::TransientStore)
+ * A full Ruby in-memory implementaion of the raw redis data structures and commands. This allows you to use the ROC classes without an underlying redis connection.  For example, this is useful for re-using logic that operates on ROC objects with temporary data that doesn't need persistence. (See ROC::Store::TransientStore)
 
- * Automagical delgation of Ruby Standard Library methods called on ROC objects, including monkeypatched methods. (See Delegation, Shortcuts and Masking below)
+ * Automagical delegation of Ruby Standard Library methods called on ROC objects, including monkeypatched methods. (See Delegation, Shortcuts and Masking below)
 
  * Support for rolling your own Redis-backed objects. (see ROC::Time for an example)
 
@@ -125,15 +125,15 @@ Wraps the Redis [sorted set](http://redis.io/commands#sorted_set) data structure
 Wraps the Redis [hash](http://redis.io/commands#hash) data structure
 
 
-## Creating instances
+## Creating Instances
 
 To explicitly initialize an object inside a particular store:
 
-    store.init_xxx(key, _initial_data_) #_initial_data_ is optional
+    store.init_xxx(key, initial_data) #initial_data is optional
 
 or
 
-    ROC::Xxx.new(key, store, _initial_data_)
+    ROC::Xxx.new(key, store, initial_data) #initial_data is optional
 
 To set the default store once for all objects:
 
@@ -145,15 +145,15 @@ or for just a particular type:
 
 Once a default store has been set, you can initialize objects and omit the storage parameter:
 
-    ROC::Xxx.new(key, _initial_data_)
+    ROC::Xxx.new(key)
 
 If you try to initialze an object without storage and there's no default storage for its class (and no global default storage), an ArgumentError is raised.
 
 You can start using the returned object whether or not the underlying key exists in the store you're connected to.
 
-If the initial_data arg is given the appripriate Redis command for the type will be called immediately with that data (e.g. set for strings, multiple rpush calls for lists)
+If the initial_data arg is given the appropriate Redis command for the type will be called immediately with that data (e.g. set for strings, multiple rpush calls for lists).
 
-NOTE: If the key already exists and initial data is passed, then existing data is first deleted.
+NOTE: If the key already exists and initial_data is passed, then existing data is first deleted.
 
 
 ## Command method names and arguments
@@ -185,11 +185,11 @@ All arguments are serialized to strings (this is done by the underlying Redis co
 
 ## Method aliases and helpers
 
-Command methods are also aliased to more conveneient or short forms according to the following principles:
+Command methods are also aliased to more convenient or short forms according to the following principles:
 
  * the initial character that denotes the redis data type is removed, e.g. zset.add is the same as zset.zadd, set.add is the same as set.sadd
-  - except where such a method name would be ambiguous, e.g. hash.hdel is NOT aliased to del, since this would conflict with the del method that all object implement
-  - except where such a name would be the same as a ruby method for an equivalent data type but the behavior is different, e.h. list.linsert in NOT aliased to l.insert, since Array#insert takes an index to insert at, whereas ROC::List#linsert takes a pivot value to insert before or after
+  - except where such a method name would be ambiguous, e.g. hash.hdel is NOT aliased to del, since this would conflict with the del method that all objects respond to.
+  - except where such a name would be the same as a Ruby method for an equivalent data type but the behavior is different, e.g. list.linsert in NOT aliased to l.insert, since Array#insert takes an index to insert at, whereas ROC::List#linsert takes a pivot value to insert before or after
 
 Some methods are also aliased to more Ruby-ish names. E.g.:
 
@@ -199,7 +199,7 @@ Some methods are also aliased to more Ruby-ish names. E.g.:
  * set << val is an alias for set.sadd
  * zset << [score, val] is an alias for zset.zadd(score, val)
 
-Classes also implement expicit methods to create Ruby-core equivalent objects.
+Classes also implement expicit methods to create Ruby Standard Library equivalent objects.
 
 ROC::String#to_s
 
@@ -219,7 +219,7 @@ ROC::Hash#to_hash
 
 Methods that are delegated (see below) are delgated to the objects returned by these calls.
 
-ROC::Set.to_set will also work, returning a [Ruby Standard Libarary Set](http://www.ruby-doc.org/stdlib/libdoc/set/rdoc/classes/Set.html). Why is this not the default Ruby type to delegate to? It's assumed that you're more likely to do set operations as Redis commands, and just want the resulting list of values returned. Note that the [Ruby Standard Libarary Sorted Set](http://www.ruby-doc.org/stdlib/libdoc/set/rdoc/classes/SortedSet.html) class is not suitable for delgating to since it sorts the values themselves, not based on separate scores.
+ROC::Set#to_set will also work, returning a [Ruby Standard Libarary Set](http://www.ruby-doc.org/stdlib/libdoc/set/rdoc/classes/Set.html). Why is this not the default Ruby type to delegate to? It's assumed that you're more likely to do set operations as Redis commands, and just want the resulting list of values returned. Note that the [Ruby Standard Libarary Sorted Set](http://www.ruby-doc.org/stdlib/libdoc/set/rdoc/classes/SortedSet.html) class is not suitable for delgating to since it sorts the values themselves, not based on separate scores.
 
 ## Delegation, Shortcuts and Masking
 
@@ -235,7 +235,7 @@ Most of these are simply delegated to the value returned by to_a, to_s , etc.
 
 So, it is not necessary to call the getter methods most of the time. E.g. roc_time_obj.to_i works and is exactly equivalent to roc_time_obj.to_time.to_i
 
-Some of these methods are explicitly implemented as shortcuts though the Redis commands, when there is no need to fetch all the data from Redis, e.g. ROC::List#[] uses ROC::List#lrange or ROC::List#lindex as appropriate.  ROC::String#[] uses the Redis commands where appropriate, but falls back to delegating to the full string for regular expression arguments.
+Some of these methods are explicitly implemented as shortcuts through the Redis commands when there is no need to fetch all the data from Redis, e.g. ROC::List#[] uses ROC::List#lrange or ROC::List#lindex as appropriate.  ROC::String#[] uses the Redis commands where appropriate, but falls back to delegating to the full string for regular expression arguments.
 
 ### Destructive methods
 
@@ -301,19 +301,19 @@ See the [Redis docs](http://redis.io/commands#transactions) for more details on 
 
 ROC has support for the experimental [Lua scripting](http://antirez.com/post/an-update-on-redis-and-lua.html) ([also](http://antirez.com/post/scripting-branch-released.html) and [also](http://antirez.com/post/redis-and-scripting.html)) EVAL command in the [redis-scripting branch](https://github.com/antirez/redis/tree/scripting). You can even use Lua scripts on data stored in a ROC::TransientStore.
 
-   # while EVAL is still an expermental Redis command, you'll need to explicitly enable in in ROC
-   Store.enable_eval
-
-   # you can run scripts directly from the store object
-   Store.call :eval, "return redis.call('get', KEYS[1])", 1, 'some_key'
-
-   # or via ROC objects
-   hsh = Store.init_hash('some_hash', {'foo' => 'bar', 'bar' => 'baz'})
-   hsh.eval("return redis.call('hmget', KEYS[1], ARGV[1], ARGV[2])", 'foo', 'bar') #=> ['bar', 'baz']
+    # while EVAL is still an expermental Redis command, you'll need to explicitly enable in in ROC
+    Store.enable_eval
+    
+    # you can run scripts directly from the store object
+    Store.call :eval, "return redis.call('get', KEYS[1])", 1, 'some_key'
+    
+    # or via ROC objects
+    hsh = Store.init_hash('some_hash', {'foo' => 'bar', 'bar' => 'baz'})
+    hsh.eval("return redis.call('hmget', KEYS[1], ARGV[1], ARGV[2])", 'foo', 'bar') #=> ['bar', 'baz']
 
 ### eval keys and arguments ###
 
-When running a Lua script via an eval call on a ROC object, the key of that object will be automaticaly added as KEYS[1] to the script args.  Any other ROC objects passed in as args will have their keys collected and sent as additional KEYS. There is therefore no need to pass an argument indicating how many keys are in the argument for #ROC::Base#eval calls, or even a need to group all keys as the first args.
+When running a Lua script via an eval call on a ROC object, the key of that object will be automaticaly added as KEYS[1] to the script args.  Any other ROC objects passed in as args will have their keys collected and sent as additional KEYS. There is therefore no need to pass an argument indicating how many keys are in the argument for ROC::Base#eval calls, or even a need to group all keys as the first args.
 
 For example:
     
@@ -334,7 +334,7 @@ NOTE: To use Lua with TransientStore, you'll need to install [rufus-lua](http://
 
 ## Implementing your own ROC classes
 
-The ROC::Types::ScalarTypes module can be used to easily implement other datatype that serialize to Redis Strings. You just need to do the following things:
+The ROC::Types::ScalarTypes module can be used to easily implement other data types that serialize to Redis Strings. You just need to do the following things:
 
  * implement serialize_value and deserialize_value
  * optionally tell it how to delegate methods
@@ -349,14 +349,14 @@ For example, here is the full implemtation of a hypothetical Foo::URI class:
         delegate_methods :on => ::URI.new, :to => :value
 
         ## implementing scalar type required methods ##
-
+        
         def serialize(uri)
-	  uri.to_s
+          uri.to_s
         end
-
+        
         def deserialize(val)
-	  ::URI.parse(val)
-	end
+          ::URI.parse(val)
+        end
       end
     end
 
