@@ -243,7 +243,7 @@ Destructive methods are implemented to show the same behavior as the Ruby equiva
 
 E.g.  list.rem vs list.delete
 
-    list = Store.init_list
+    list = Store.init_list('foo')
     list << 'x'
     list << 'x'
     list << 'y'
