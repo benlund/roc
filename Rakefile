@@ -21,14 +21,14 @@ def uninstall
 end
 
 def install_local
-  install('http://localhost/Gems/')
+  do_install('http://localhost/Gems/')
 end
 
 def install_remote
-  install
+  do_install
 end
 
-def install(source=nil)
+def do_install(source=nil)
   cmd = 'sudo gem install roc'
   if !source.nil?
     cmd << " --source #{source}"

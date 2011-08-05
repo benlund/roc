@@ -1218,8 +1218,8 @@ module ROC
 
       def exec
         if @multi_mode
-          @multi_mode = false
           ret = []
+          @multi_mode = false
           @multi_calls.each do |call|
             ret << (self.call *call)
           end
@@ -1237,6 +1237,10 @@ module ROC
         else
           raise "discard without a multi"
         end
+      end
+
+      def in_multi?
+        !!@multi_mode
       end
 
       def watch(*keys)

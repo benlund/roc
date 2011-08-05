@@ -28,7 +28,40 @@ module ROC
         self.connection.send method_name, *args
       end
 
-      def_delegators :connection, :multi, :exec, :discard, :watch, :unwatch, :flushdb
+      def_delegators :connection, :watch, :unwatch, :flushdb
+
+      def multi
+        @in_multi = true
+        if block_given?          
+          ret = self.connection.multi do
+            yield
+          end           
+          @in_multi = false
+        else
+          ret = self.connection.multi
+        end
+        ret
+      end
+
+      def exec
+        ret = self.connection.exec
+        if @in_multi
+          @in_multi = false
+        end
+        ret
+      end
+
+      def discard
+        ret = self.connection.discard
+        if @in_multi
+          @in_multi = false
+        end
+        ret
+      end
+
+      def in_multi?
+        !!@in_multi
+      end
 
       def inspect
         "<#{self.class} @connection=#{self.connection.inspect}>"

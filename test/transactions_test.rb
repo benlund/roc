@@ -6,13 +6,17 @@ class TransactionsTest < ROCTest
     str = Store.init_string(random_key, 'hi there')
 
     Store.multi do
+      assert Store.in_multi?
       str.value = 'bye there'
     end
+    assert !Store.in_multi?
     assert_equal 'bye there', str.to_s      
 
     Store.multi
+    assert Store.in_multi?
     str.value = 'why there'
     Store.discard
+    assert !Store.in_multi?
     assert_equal 'bye there', str.to_s
 
     list = Store.init_list(random_key, ['a', 'z'])

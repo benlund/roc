@@ -48,6 +48,10 @@ module ROC
       def init_time(key, *seed_data_and_options)
         init(ROC::Time, key, *seed_data_and_options)
       end
+
+      def init_lock(key, *seed_data_and_options)
+        init(ROC::Lock, key, *seed_data_and_options)
+      end
       
       def init_list(key, *seed_data_and_options)
         init(ROC::List, key, *seed_data_and_options)
