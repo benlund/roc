@@ -48,12 +48,6 @@ module ROC
       end      
     end
 
-    def wait_until_not_locked(poll_ms=100)
-      until !self.locked?
-        sleep(poll_ms.to_f / 1000)
-      end
-    end
-
   end
 end
 
