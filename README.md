@@ -7,7 +7,7 @@ ROC also includes a pure-Ruby in-memory implementation of the Redis commands and
 
 ## Install
 
-   sudo gem install redis-roc
+    sudo gem install redis-roc
 
 
 ## Summary
