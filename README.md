@@ -63,7 +63,20 @@ ROC also includes a pure-Ruby in-memory implementation of the Redis commands and
     end
     tally['lemons'] #=> '5'  # values are always strings
     tally.to_hash #=> {'oranges' => '2', 'lemons' => '5'}
+    
+    
+    ## ROC::Lock ##
+    
+    lock = Store.init_lock('write_lock')
+    # wait until we get the lock
+    lock.when_locked(Time.now + 10, 10) do # lock expires in 10 seconds, poll every 10 milliseconds untill we get the lock
+      ## do stuff
+    end # lock removed automatically
 
+    # create the lock if it's not already locked, but it's ok to do stuff if someone else has the lock
+    lock.locking_if_necessary(Time.now + 10) do # expire the lock in 10 seconds if we get it, but no need to poll since we'll go ahead anyway
+      ## do stuff
+    end # lock removed only if we got it
 
 
 See test/*.rb for many more examples
@@ -107,6 +120,10 @@ Represents Ruby Float objects as a Redis string
 ### ROC::Time
 
 Represents Ruby Time objects as a Redis string
+
+### ROC::Lock
+
+A subclass of ROC::Time, an expiring lock object
 
 ### ROC::List
 
@@ -365,7 +382,7 @@ For example, here is the full implemtation of a hypothetical Foo::URI class:
 
 https://github.com/nateware/redis-objects
 
-Ruby-ish wrappers for Redis data structures, very similar to ROC.  Also includes support for adding proprties to models. No support for transient storage, and a less explicit separation between redis command methods and delgated or shortcut methods to mimic core Ruby objects.
+Ruby-ish wrappers for Redis data structures, very similar to ROC.  Also includes support for adding properties to models. No support for transient storage, no support for eval/Lua, and a less explicit separation between redis command methods and delgated or shortcut methods to mimic core Ruby objects.
 
 
 https://github.com/grosser/redis-objective
