@@ -4,7 +4,7 @@ $:.unshift File.expand_path('../lib', __FILE__)
 require 'roc/version'
 
 Gem::Specification.new do |s|
-  s.name = 'roc'
+  s.name = 'redis-roc'
   s.version = ROC::VERSION
 
   s.authors = ['Ben Lund']  
@@ -15,5 +15,5 @@ Gem::Specification.new do |s|
 
   s.add_dependency('redis')
   s.add_dependency('cim_attributes')
-  s.files = ['lib/roc.rb'] + Dir['lib/roc/*.rb'] + Dir['lib/roc/*/*.rb']
+  s.files = ['lib/redis-roc.rb'] + Dir['lib/roc/*.rb'] + Dir['lib/roc/*/*.rb']
 end

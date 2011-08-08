@@ -1,5 +1,5 @@
 def clean
-  Dir['roc-*.gem'].each{|f| File.unlink(f)}
+  Dir['redis-roc-*.gem'].each{|f| File.unlink(f)}
 end
 
 def build
@@ -8,16 +8,16 @@ end
 
 def publish_local
   dir = '~/Development/Gems/'
-  `cp roc-*.gem #{dir}/gems/`
+  `cp redis-roc-*.gem #{dir}/gems/`
   `gem generate_index --update --modern -d #{dir}`
 end
 
 def publish_remote
-  ##@@!!
+  `gem push redis-roc-*.gem`
 end
 
 def uninstall
-  `sudo gem uninstall roc`
+  `sudo gem uninstall redis-roc`
 end
 
 def install_local
@@ -29,7 +29,7 @@ def install_remote
 end
 
 def do_install(source=nil)
-  cmd = 'sudo gem install roc'
+  cmd = 'sudo gem install redis-roc'
   if !source.nil?
     cmd << " --source #{source}"
   end

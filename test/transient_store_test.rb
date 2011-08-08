@@ -1,6 +1,6 @@
 require 'test/unit'
 
-require 'roc'
+require 'redis-roc'
 
 class TransientStoreTest < Test::Unit::TestCase
 

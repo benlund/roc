@@ -28,10 +28,6 @@ class LockTest < ROCTest
     now = Time.now
     assert l.lock(now + 3)
 
-    l.wait_until_not_locked
-    waited_for = Time.now.to_i - now.to_i
-    assert_equal 3, waited_for
-
     counter = 0
 
     now = Time.now

@@ -5,9 +5,14 @@ Redis Object Collection: a collection of Ruby classes that wrap [Redis](http://r
 ROC also includes a pure-Ruby in-memory implementation of the Redis commands and data structures to allow you to use the ROC clases without persistence.
 
 
+## Install
+
+   sudo gem install redis-roc
+
+
 ## Summary
 
-    require 'roc'
+    require 'redis-roc'
     
     Store = ROC::Store::RedisStore.new(:url => 'redis://127.0.0.1/1')
     

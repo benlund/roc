@@ -1,6 +1,6 @@
 require 'test/unit'
 
-require 'roc'
+require 'redis-roc'
 
 Store = if ENV['ROC_STORE'].nil?
           ROC::Store::TransientStore.new
