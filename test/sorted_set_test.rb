@@ -311,4 +311,27 @@ class SortedSetTest < ROCTest
     assert_equal [], s.values
   end
 
+  def test_autodel
+    z = Store.init_sorted_set(random_key)
+    keys_count = Store.keys('*').size
+
+    z << [1, 'blah']
+    assert_equal( keys_count + 1, Store.keys('*').size )
+
+    z.zrem('blah')
+    assert_equal( keys_count,  Store.keys('*').size )
+
+    z << [1, 'blah']
+    assert_equal( keys_count + 1,  Store.keys('*').size )
+
+    z.zremrangebyscore('-inf', '+inf')
+    assert_equal( keys_count, Store.keys('*').size )
+
+    z << [1, 'blah']
+    assert_equal( keys_count + 1,  Store.keys('*').size )
+
+    z.zremrangebyrank(0, -1)
+    assert_equal( keys_count, Store.keys('*').size )
+  end
+
 end

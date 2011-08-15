@@ -579,6 +579,11 @@ module ROC
               self.keyspace[key.to_s].delete_at(i - correction)
               correction += 1
             end
+
+            if 0 == self.llen(key)
+              self.del(key)
+            end
+
             indexes_to_del.size
           else
             0
@@ -721,7 +726,11 @@ module ROC
           if hsh.nil?
            false
           else
-            !!hsh.delete(val.to_s)
+            ret = !!hsh.delete(val.to_s)
+            if 0 == hsh.size
+              self.del(key)              
+            end
+            ret
           end
         end
       end
@@ -1009,6 +1018,9 @@ module ROC
           else
             if hsh[:map].delete(val.to_s)
               self.resort(key)
+              if 0 == hsh[:list].size
+                self.del(key)
+              end
               true
             else
               false
@@ -1020,10 +1032,14 @@ module ROC
       def zremrangebyscore(key, min, max)
         vals = self.zrangebyscore(key, min, max)
         if vals.size > 0
+          hsh = self.keyspace[key.to_s]
           vals.each do |val|
-            self.keyspace[key.to_s][:map].delete(val)
+            hsh[:map].delete(val)
           end
           self.resort(key)
+          if 0 == hsh[:list].size
+            self.del(key)
+          end
           vals.size
         else
           0
@@ -1033,10 +1049,14 @@ module ROC
       def zremrangebyrank(key, start, stop)
         vals = self.zrange(key, start, stop)
         if vals.size > 0
+          hsh = self.keyspace[key.to_s]
           vals.each do |val|
-            self.keyspace[key.to_s][:map].delete(val)
+            hsh[:map].delete(val)
           end
           self.resort(key)
+          if 0 == hsh[:list].size
+            self.del(key)
+          end
           vals.size
         else
           0
@@ -1163,7 +1183,12 @@ module ROC
 
       def hdel(key, field)
         with_type(key, 'hash') do
-          self.exists(key) && !!self.keyspace[key.to_s].delete(field.to_s)
+          hsh = self.keyspace[key.to_s]
+          ret = self.exists(key) && !!hsh.delete(field.to_s)
+          if 0 == hsh.size
+            self.del(key)
+          end
+          ret
         end
       end
 

@@ -187,4 +187,21 @@ class SetTest < ROCTest
     assert_equal( [], s.to_a )
   end
 
+  def test_autodel
+    s = Store.init_set(random_key)
+    keys_count = Store.keys('*').size
+
+    s << 'blah'
+    assert_equal( keys_count + 1, Store.keys('*').size )
+
+    s.srem('blah')
+    assert_equal( keys_count,  Store.keys('*').size )
+
+    s << 'blah'
+    assert_equal( keys_count + 1,  Store.keys('*').size )
+
+    s.spop
+    assert_equal( keys_count, Store.keys('*').size )
+  end
+
 end

@@ -223,5 +223,27 @@ class ListTest < ROCTest
     assert_equal( [], l.to_a )
   end
 
+  def test_autodel
+    l = Store.init_list(random_key)
+    keys_count = Store.keys('*').size
+
+    l << 'blah'
+    assert_equal( keys_count + 1, Store.keys('*').size )
+
+    l.lrem(0, 'blah')
+    assert_equal( keys_count,  Store.keys('*').size )
+
+    l << 'blah'
+    assert_equal( keys_count + 1,  Store.keys('*').size )
+
+    l.lpop
+    assert_equal( keys_count, Store.keys('*').size )
+
+    l << 'blah'
+    assert_equal( keys_count + 1,  Store.keys('*').size )
+
+    l.rpop
+    assert_equal( keys_count, Store.keys('*').size )
+  end
 
 end
