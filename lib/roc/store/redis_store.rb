@@ -28,7 +28,7 @@ module ROC
         self.connection.send method_name, *args
       end
 
-      def_delegators :connection, :watch, :unwatch, :flushdb
+      def_delegators :connection, :watch, :unwatch, :flushdb, :keys, :randomkey
 
       def multi
         @in_multi = true
